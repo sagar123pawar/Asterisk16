@@ -35,7 +35,7 @@
 
 #define THIS_FILE   "sip_transaction.c"
 
-#if 0
+#if 1
 #define TSX_TRACE_(expr)    PJ_LOG(3,expr)
 #else
 #define TSX_TRACE_(expr)

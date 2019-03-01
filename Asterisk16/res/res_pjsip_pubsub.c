@@ -48,6 +48,10 @@
 #include "res_pjsip/include/res_pjsip_private.h"
 #include "asterisk/res_pjsip_presence_xml.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 /*** DOCUMENTATION
 	<manager name="PJSIPShowSubscriptionsInbound" language="en_US">
 		<synopsis>

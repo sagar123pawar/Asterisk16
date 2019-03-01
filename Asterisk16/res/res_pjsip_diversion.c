@@ -34,6 +34,10 @@
 #include "asterisk/module.h"
 #include "asterisk/strings.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 static const pj_str_t diversion_name = { "Diversion", 9 };
 
 /*!

@@ -655,10 +655,10 @@ enum ast_log_enum {
 	AST_ALL_LOG_ENUM     = AST_DEBUG_LOG_ENUM | AST_NOTICE_LOG_ENUM | AST_WARNING_LOG_ENUM | AST_ERROR_LOG_ENUM | AST_VERBOSE_LOG_ENUM
 };
 
-int ast_log_get_index(const char *modname);
-void ast_log_module_register(const char *modname, int *index);
-void ast_log_module_unregister(const char *modname);
+void ast_log_module_register(const char *modname, int *index, const char *file, int line);
+void ast_log_module_unregister(const char *modname, const char *file, int line);
 void ast_log_module_update(void);
+void ast_log_modules_destroy(void);
 
 #ifdef __GNUC__
 #define AST_MAYBE_UNUSED __attribute__((used))
@@ -672,14 +672,11 @@ static int ast_module_index AST_MAYBE_UNUSED;
 #define AST_MODULE_LOG(modname)												\
 static void __attribute__((constructor)) __ast_log_module_register(void)	\
 {																			\
-	AST_MODULES_INDEX = ast_log_get_index(modname);							\
-	if (0 == AST_MODULES_INDEX) {											\
-		ast_log_module_register(modname, &AST_MODULES_INDEX);				\
-	}																		\
+	ast_log_module_register(modname, &AST_MODULES_INDEX, __FILE__, __LINE__);					\
 }																			\
 static void __attribute__((destructor)) __ast_log_module_unregister(void)	\
 {																			\
-	ast_log_module_unregister(modname);										\
+	ast_log_module_unregister(modname,__FILE__, __LINE__);										\
 }
 #endif
 

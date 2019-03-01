@@ -33,6 +33,10 @@
 #include "asterisk/causes.h"
 #include "asterisk/threadpool.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 static void rfc3326_use_reason_header(struct ast_sip_session *session, struct pjsip_rx_data *rdata)
 {
 	static const pj_str_t str_reason = { "Reason", 6 };

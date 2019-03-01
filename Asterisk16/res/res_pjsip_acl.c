@@ -32,6 +32,10 @@
 #include "asterisk/sorcery.h"
 #include "asterisk/acl.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 /*** DOCUMENTATION
 	<configInfo name="res_pjsip_acl" language="en_US">
 		<synopsis>SIP ACL module</synopsis>

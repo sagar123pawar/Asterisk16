@@ -33,6 +33,10 @@
 #include "asterisk/cli.h"
 #include "asterisk/netsock2.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 enum pjsip_logging_mode {
 	LOGGING_MODE_DISABLED,    /* No logging is enabled */
 	LOGGING_MODE_ENABLED,     /* Logging is enabled */

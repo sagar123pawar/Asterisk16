@@ -25,6 +25,10 @@
 #include "asterisk/linkedlists.h"
 #include "include/res_pjsip_private.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 static pj_status_t add_request_headers(pjsip_tx_data *tdata);
 static pj_status_t add_response_headers(pjsip_tx_data *tdata);
 

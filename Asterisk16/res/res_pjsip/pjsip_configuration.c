@@ -35,6 +35,10 @@
 #include "asterisk/pbx.h"
 #include "asterisk/stream.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 /*! \brief Number of buckets for persistent endpoint information */
 #define PERSISTENT_BUCKETS 53
 

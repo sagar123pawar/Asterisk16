@@ -39,6 +39,10 @@
 #include "asterisk/stasis_channels.h"
 #include "asterisk/causes.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 /*! \brief REFER Progress structure */
 struct refer_progress {
 	/*! \brief Subscription to provide updates on */

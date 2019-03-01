@@ -36,6 +36,10 @@
 #include "asterisk/res_pjsip_session.h"
 #include "asterisk/sorcery.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 /*** DOCUMENTATION
 	<manager name="PJSIPNotify" language="en_US">
 		<synopsis>

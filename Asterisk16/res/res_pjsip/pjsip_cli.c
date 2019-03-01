@@ -31,6 +31,10 @@
 #include "asterisk/utils.h"
 #include "asterisk/sorcery.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 static struct ao2_container *formatter_registry;
 
 int ast_sip_cli_print_sorcery_objectset(void *obj, void *arg, int flags)

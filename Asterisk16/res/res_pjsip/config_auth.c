@@ -27,6 +27,10 @@
 #include "include/res_pjsip_private.h"
 #include "asterisk/res_pjsip_cli.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 static void auth_destroy(void *obj)
 {
 	struct ast_sip_auth *auth = obj;

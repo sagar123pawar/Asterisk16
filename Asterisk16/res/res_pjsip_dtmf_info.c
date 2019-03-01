@@ -31,6 +31,10 @@
 #include "asterisk/res_pjsip_session.h"
 #include "asterisk/module.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 static int is_media_type(pjsip_rx_data *rdata, char *subtype)
 {
 	return rdata->msg_info.ctype

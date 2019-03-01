@@ -37,6 +37,10 @@
 #include "asterisk/datastore.h"
 #include "res_pjsip/include/res_pjsip_private.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 /*** DOCUMENTATION
 	<configInfo name="res_pjsip_outbound_publish" language="en_US">
 		<synopsis>SIP resource for outbound publish</synopsis>

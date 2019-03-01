@@ -33,6 +33,10 @@
 /* We're only using a #define from http_websocket.h, no OPTIONAL_API symbols are used. */
 #include "asterisk/http_websocket.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 #define MAX_POINTER_STRING 33
 
 /*! \brief Default number of state container buckets */

@@ -32,6 +32,10 @@
 #include "asterisk/module.h"
 #include "asterisk/acl.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 static void rewrite_uri(pjsip_rx_data *rdata, pjsip_sip_uri *uri)
 {
 	pj_cstr(&uri->host, rdata->pkt_info.src_name);

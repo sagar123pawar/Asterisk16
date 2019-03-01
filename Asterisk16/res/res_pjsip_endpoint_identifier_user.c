@@ -29,6 +29,10 @@
 #include "asterisk/res_pjsip.h"
 #include "asterisk/module.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 static int get_from_header(pjsip_rx_data *rdata, char *username, size_t username_size, char *domain, size_t domain_size)
 {
 	pjsip_uri *from = rdata->msg_info.from->uri;

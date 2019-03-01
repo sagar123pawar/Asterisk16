@@ -35,6 +35,10 @@
 #include "asterisk/res_pjsip_presence_xml.h"
 #include "asterisk/res_pjsip_body_generator_types.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 /*!
  * \internal
  * \brief Adds non standard elements to the xml body

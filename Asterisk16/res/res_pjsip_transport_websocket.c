@@ -38,6 +38,10 @@
 #include "asterisk/res_pjsip_session.h"
 #include "asterisk/taskprocessor.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 static int transport_type_wss;
 static int transport_type_wss_ipv6;
 

@@ -46,7 +46,7 @@
 #include "asterisk/res_pjproject.h"
 
 #ifdef GRANDSTREAM_NETWORKS
-AST_MODULE_LOG("pjsip")
+AST_MODULE_LOG("pjsip");
 #endif
 
 /*** MODULEINFO

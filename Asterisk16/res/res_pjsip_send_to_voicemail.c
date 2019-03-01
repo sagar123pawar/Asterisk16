@@ -41,6 +41,10 @@
 #include "asterisk/res_pjsip_session.h"
 #include "asterisk/module.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 #define DATASTORE_NAME "call_feature_send_to_vm_datastore"
 
 #define SEND_TO_VM_HEADER "PJSIP_HEADER(add,X-Digium-Call-Feature)"

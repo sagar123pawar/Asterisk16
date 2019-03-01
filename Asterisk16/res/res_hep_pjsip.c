@@ -44,6 +44,10 @@
 #include "asterisk/module.h"
 #include "asterisk/netsock2.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 static char *assign_uuid(const pj_str_t *call_id, const pj_str_t *local_tag, const pj_str_t *remote_tag)
 {
 	RAII_VAR(struct ast_sip_session *, session, NULL, ao2_cleanup);

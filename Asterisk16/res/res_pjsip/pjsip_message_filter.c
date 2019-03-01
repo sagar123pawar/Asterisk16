@@ -26,6 +26,10 @@
 #include "include/res_pjsip_private.h"
 #include "asterisk/module.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 #define MOD_DATA_RESTRICTIONS "restrictions"
 
 static pj_status_t filter_on_tx_message(pjsip_tx_data *tdata);

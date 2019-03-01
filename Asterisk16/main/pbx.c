@@ -74,7 +74,7 @@
 #include "pbx_private.h"
 
 #ifdef GRANDSTREAM_NETWORKS
-AST_MODULE_LOG("PBX")
+AST_MODULE_LOG("PBX");
 #endif
 
 /*!

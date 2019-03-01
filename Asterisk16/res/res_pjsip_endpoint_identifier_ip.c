@@ -33,6 +33,10 @@
 #include "asterisk/manager.h"
 #include "res_pjsip/include/res_pjsip_private.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 /*** DOCUMENTATION
 	<configInfo name="res_pjsip_endpoint_identifier_ip" language="en_US">
 		<synopsis>Module that identifies endpoints</synopsis>

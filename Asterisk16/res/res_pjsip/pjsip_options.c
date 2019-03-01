@@ -35,6 +35,10 @@
 #include "asterisk/taskprocessor.h"
 #include "asterisk/threadpool.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 /*
  * This implementation for OPTIONS support is based around the idea
  * that realistically an AOR generally has very few contacts and is

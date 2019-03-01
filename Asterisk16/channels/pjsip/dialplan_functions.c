@@ -522,6 +522,10 @@
 #include "include/chan_pjsip.h"
 #include "include/dialplan_functions.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 /*!
  * \brief String representations of the T.38 state enum
  */

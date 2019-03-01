@@ -30,6 +30,10 @@
 #include "asterisk/res_pjsip_cli.h"
 #include "asterisk/taskprocessor.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 #define TASK_BUCKETS 53
 
 static struct ast_sched_context *scheduler_context;

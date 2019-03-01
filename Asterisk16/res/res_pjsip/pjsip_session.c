@@ -29,6 +29,10 @@
 #include "asterisk/lock.h"
 #include "asterisk/module.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 AST_RWLIST_HEAD_STATIC(session_supplements, ast_sip_session_supplement);
 
 /* This structure is used to support module references without

@@ -33,6 +33,10 @@
 
 #include "asterisk/res_pjproject.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 static int pj_max_hostname = PJ_MAX_HOSTNAME;
 static int pjsip_max_url_size = PJSIP_MAX_URL_SIZE;
 

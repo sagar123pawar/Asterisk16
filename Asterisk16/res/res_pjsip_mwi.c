@@ -40,6 +40,10 @@
 #include "asterisk/stasis.h"
 #include "asterisk/app.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 struct mwi_subscription;
 static struct ao2_container *unsolicited_mwi;
 

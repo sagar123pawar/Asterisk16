@@ -34,6 +34,10 @@
 #include "asterisk/linkedlists.h"
 #include "asterisk/vector.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 /* ------------------------------------------------------------------- */
 
 /*! \brief Number of buckets for monitored active transports */

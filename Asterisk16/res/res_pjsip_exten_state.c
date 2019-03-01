@@ -43,6 +43,10 @@
 #include "asterisk/app.h"
 #include "asterisk/taskprocessor.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 #define BODY_SIZE 1024
 #define EVENT_TYPE_SIZE 50
 

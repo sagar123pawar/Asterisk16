@@ -43,6 +43,10 @@
 #include "asterisk/res_pjsip_session.h"
 #include "asterisk/taskprocessor.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 const pjsip_method pjsip_message_method = {PJSIP_OTHER_METHOD, {"MESSAGE", 7} };
 
 #define MAX_HDR_SIZE 512

@@ -31,6 +31,10 @@
 #include "asterisk/module.h"
 #include "asterisk/strings.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 static pjsip_www_authenticate_hdr *get_auth_header(pjsip_rx_data *challenge,
 	const void *start)
 {

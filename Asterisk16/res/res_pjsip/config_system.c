@@ -28,6 +28,10 @@
 #include "asterisk/dns.h"
 #include "asterisk/res_pjsip_cli.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 #define TIMER_T1_MIN 100
 #define DEFAULT_TIMER_T1 500
 #define DEFAULT_TIMER_B 32000

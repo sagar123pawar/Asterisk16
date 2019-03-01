@@ -38,8 +38,10 @@
 #include "asterisk/cli.h"
 #include "asterisk/paths.h"
 
+#ifndef GRANDSTREAM_NETWORKS
 /* Use ast_log_safe in place of ast_log. */
 #define ast_log ast_log_safe
+#endif
 
 static FILE *ref_log;
 
@@ -331,8 +333,12 @@ int __ao2_unlock(void *user_data, const char *file, const char *func, int line, 
 		res = __ao2_unlock(obj_lockobj->lockobj.lock, file, func, line, var);
 		break;
 	default:
+#ifdef GRANDSTREAM_NETWORKS
+		ast_log(__LOG_ERROR, "Invalid lock option on ao2 object %p\n", user_data);
+#else
 		ast_log(__LOG_ERROR, file, line, func, "Invalid lock option on ao2 object %p\n",
 			user_data);
+#endif
 		res = -1;
 		break;
 	}
@@ -397,8 +403,12 @@ int __ao2_trylock(void *user_data, enum ao2_lock_req lock_how, const char *file,
 		res = __ao2_trylock(obj_lockobj->lockobj.lock, lock_how, file, func, line, var);
 		break;
 	default:
+#ifdef GRANDSTREAM_NETWORKS
+		ast_log(__LOG_ERROR, "Invalid lock option on ao2 object %p\n", user_data);
+#else
 		ast_log(__LOG_ERROR, file, line, func, "Invalid lock option on ao2 object %p\n",
 			user_data);
+#endif
 		return -1;
 	}
 
@@ -580,8 +590,11 @@ int __ao2_ref(void *user_data, int delta,
 			snprintf(excessive_ref_buf, sizeof(excessive_ref_buf),
 				"Excessive refcount %d reached on ao2 object %p",
 				(int)current_value, user_data);
+#ifdef GRANDSTREAM_NETWORKS
+			ast_log(__LOG_ERROR, "%s\n", excessive_ref_buf);
+#else
 			ast_log(__LOG_ERROR, file, line, func, "%s\n", excessive_ref_buf);
-
+#endif
 			__ast_assert_failed(0, excessive_ref_buf, file, line, func);
 		}
 
@@ -596,8 +609,12 @@ int __ao2_ref(void *user_data, int delta,
 
 	/* this case must never happen */
 	if (current_value < 0) {
+#ifdef GRANDSTREAM_NETWORKS
+		ast_log(__LOG_ERROR, "Invalid refcount %d on ao2 object %p\n", (int)current_value, user_data);
+#else
 		ast_log(__LOG_ERROR, file, line, func,
 			"Invalid refcount %d on ao2 object %p\n", (int)current_value, user_data);
+#endif
 		if (ref_log) {
 			/* Log to ref_log invalid even if (tag == NULL) */
 			fprintf(ref_log, "%p,%d,%d,%s,%d,%s,**invalid**,%s\n",
@@ -649,8 +666,12 @@ int __ao2_ref(void *user_data, int delta,
 		ast_free(obj_lockobj);
 		break;
 	default:
+#ifdef GRANDSTREAM_NETWORKS
+		ast_log(__LOG_ERROR, "Invalid lock option on ao2 object %p\n", user_data);
+#else
 		ast_log(__LOG_ERROR, file, line, func,
 			"Invalid lock option on ao2 object %p\n", user_data);
+#endif
 		lock_state = "invalid";
 		break;
 	}
@@ -719,7 +740,11 @@ static void *internal_ao2_alloc(size_t data_size, ao2_destructor_fn destructor_f
 	case AO2_ALLOC_OPT_LOCK_OBJ:
 		lockobj = ao2_t_bump(lockobj, "set lockobj");
 		if (!lockobj) {
+#ifdef GRANDSTREAM_NETWORKS
+			ast_log(__LOG_ERROR, "AO2_ALLOC_OPT_LOCK_OBJ requires a non-NULL lockobj.\n");
+#else
 			ast_log(__LOG_ERROR, file, line, func, "AO2_ALLOC_OPT_LOCK_OBJ requires a non-NULL lockobj.\n");
+#endif
 			return NULL;
 		}
 
@@ -735,7 +760,11 @@ static void *internal_ao2_alloc(size_t data_size, ao2_destructor_fn destructor_f
 		break;
 	default:
 		/* Invalid option value. */
+#ifdef GRANDSTREAM_NETWORKS
+		ast_log(__LOG_DEBUG, "Invalid lock option requested\n");
+#else
 		ast_log(__LOG_DEBUG, file, line, func, "Invalid lock option requested\n");
+#endif
 		return NULL;
 	}
 

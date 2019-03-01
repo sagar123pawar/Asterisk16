@@ -200,18 +200,6 @@ static FILE *qlog;
  * logchannels list.
  */
 
-#ifdef GRANDSTREAM_NETWORKS
-static char *levels[NUMLOGLEVELS] = {
-	"DEBUG",
-	"---EVENT---",
-	"NOTICE",
-	"WARNING",
-	"ERROR",
-	"VERBOSE",
-	"DTMF",
-	"ALL",
-};
-#else
 static char *levels[NUMLOGLEVELS] = {
 	"DEBUG",
 	"---EVENT---",		/* no longer used */
@@ -221,7 +209,6 @@ static char *levels[NUMLOGLEVELS] = {
 	"VERBOSE",
 	"DTMF",
 };
-#endif
 
 /*! \brief Colors used in the console for logging */
 static const int colors[NUMLOGLEVELS] = {
@@ -301,7 +288,7 @@ static int ast_log_cmp_cb(void *obj, void *arg, int flags)
 	return (0 == strcasecmp(mod->modname, arg)) ? CMP_MATCH | CMP_STOP : 0;
 }
 
-int ast_log_get_index(const char *modname)
+void ast_log_module_register(const char *modname, int *index, const char *file, int line)
 {
 	struct ast_log_modules *mod = NULL;
 
@@ -311,18 +298,12 @@ int ast_log_get_index(const char *modname)
 
 	ao2_lock(log_container);
 	mod = ao2_find(log_container, modname, 0);
-	ao2_unlock(log_container);
-
 	if (mod) {
-		return mod->index;
+		*index = mod->index;
+		ao2_ref(mod, -1);
+		ao2_unlock(log_container);
+		return;
 	}
-
-	return 0;
-}
-
-void ast_log_module_register(const char *modname, int *index)
-{
-	struct ast_log_modules *mod = NULL;
 
 	mod = ao2_alloc(sizeof(*mod), ast_log_modules_dtor);
 	if (mod) {
@@ -338,28 +319,31 @@ void ast_log_module_register(const char *modname, int *index)
 			all->index = 0;
 			ast_log_indexs[all->index] = AST_ALL_LOG_ENUM;
 
-			ao2_lock(log_container);
 			ao2_link(log_container, all);
-			ao2_unlock(log_container);
 		}
 	}
-
-	ao2_lock(log_container);
 	ao2_link(log_container, mod);
 	ao2_unlock(log_container);
 }
 
-void ast_log_module_unregister(const char *modname)
+void ast_log_module_unregister(const char *modname, const char *file, int line)
 {
+}
+
+void ast_log_modules_destroy(void)
+{
+	struct ao2_iterator iter;
 	struct ast_log_modules *mod = NULL;
 
 	ao2_lock(log_container);
-	mod = ao2_find(log_container, modname, 0);
-	if (mod) {
+	iter = ao2_iterator_init(log_container, 0);
+	while ((mod = ao2_t_iterator_next(&iter, "Iterate through queues"))) {
 		ao2_unlink(log_container, mod);
-		ao2_ref(mod, -1);
+		ao2_ref(mod, -2);
 	}
+	ao2_iterator_destroy(&iter);
 	ao2_unlock(log_container);
+	ao2_cleanup(log_container);
 }
 
 void ast_log_module_update(void)
@@ -377,6 +361,7 @@ static char *ast_log_find_modname(const char *modname, int skip_count)
 	char *modulename = NULL;
 	struct ao2_iterator iter;
 	int count = 0;
+	int modnamelen = 0;
 
 	if (!modname) {
 		ao2_lock(log_container);
@@ -387,18 +372,23 @@ static char *ast_log_find_modname(const char *modname, int skip_count)
 				ao2_ref(mod, -1);
 				break;
 			}
+			ao2_ref(mod, -1);
 		}
+		ao2_iterator_destroy(&iter);
 		ao2_unlock(log_container);
 	} else {
 		ao2_lock(log_container);
+		modnamelen = strlen(modname);
 		iter = ao2_iterator_init(log_container, 0);
 		while ((mod = ao2_t_iterator_next(&iter, "Iterate through queues"))) {
-			if (strcasestr(mod->modname, modname) && ++count > skip_count) {
+			if (!strncasecmp(mod->modname, modname, modnamelen) && ++count > skip_count) {
 				modulename = ast_strdup(mod->modname);
 				ao2_ref(mod, -1);
 				break;
 			}
+			ao2_ref(mod, -1);
 		}
+		ao2_iterator_destroy(&iter);
 		ao2_unlock(log_container);
 	}
 
@@ -407,20 +397,30 @@ static char *ast_log_find_modname(const char *modname, int skip_count)
 
 static char *ast_log_find_level(const char *name, int skip_count)
 {
-	int i, count = 0;
+	int i, count = 0, namelen = 0;
 	char *levelname = NULL;
+	char *levelsname[] = {
+		"DEBUG",
+		"NOTICE",
+		"WARNING",
+		"ERROR",
+		"VERBOSE",
+		"DTMF",
+		"ALL",
+	};
 
 	if (!name) {
-		for (i = 0; i < ARRAY_LEN(levels); i++) {
+		for (i = 0; i < ARRAY_LEN(levelsname); i++) {
 			if (++count > skip_count) {
-				levelname = ast_strdup(levels[i]);
+				levelname = ast_strdup(levelsname[i]);
 				break;
 			}
 		}
 	} else {
-		for (i = 0; i < ARRAY_LEN(levels); i++) {
-			if (levels[i] && strcasestr(levels[i], name) && ++count > skip_count) {
-				levelname = ast_strdup(levels[i]);
+		namelen = strlen(name);
+		for (i = 0; i < ARRAY_LEN(levelsname); i++) {
+			if (levelsname[i] && !strncasecmp(levelsname[i], name, namelen) && ++count > skip_count) {
+				levelname = ast_strdup(levelsname[i]);
 				break;
 			}
 		}
@@ -453,7 +453,6 @@ static char *ast_log_find_switch(const char *name, int skip_count)
 
 	return sname;
 }
-
 #endif
 
 static int format_log_json(struct logchannel *channel, struct logmsg *msg, char *buf, size_t size)
@@ -518,6 +517,22 @@ static struct logformatter logformatter_json = {
 
 static int logger_add_verbose_magic(struct logmsg *logmsg, char *buf, size_t size)
 {
+#ifdef GRANDSTREAM_NETWORKS
+	int has_file = !ast_strlen_zero(logmsg->file);
+	int has_line = (logmsg->line > 0);
+	char linestr[32] = {0};
+
+	snprintf(linestr, sizeof(linestr), "%d", logmsg->line);
+
+	snprintf(buf, size, "[%s] " COLORIZE_FMT "[%d]: " COLORIZE_FMT "%s" COLORIZE_FMT " " "%s\n",
+		logmsg->date,
+		COLORIZE(colors[logmsg->level], 0, logmsg->level_name),
+		logmsg->lwp,
+		COLORIZE(COLOR_BRWHITE, 0, has_file ? logmsg->file : ""),
+		has_file ? ":" : "",
+		COLORIZE(COLOR_BRWHITE, 0, has_line ? linestr : ""),
+		logmsg->message);
+#else
 	const char *p;
 	const char *fmt;
 	struct ast_str *prefixed;
@@ -558,6 +573,7 @@ static int logger_add_verbose_magic(struct logmsg *logmsg, char *buf, size_t siz
 	} while (p && *p);
 
 	snprintf(buf, size, "%s", ast_str_buffer(prefixed));
+#endif
 
 	return 0;
 }
@@ -605,7 +621,7 @@ static int format_log_default(struct logchannel *chan, struct logmsg *msg, char 
 			snprintf(linestr, sizeof(linestr), "%d", msg->line);
 			/* Build string to print out */
 #ifdef GRANDSTREAM_NETWORKS
-			snprintf(buf, size, "[%s] " COLORIZE_FMT "[%d]%s: " COLORIZE_FMT "%s" COLORIZE_FMT " " "%s",
+			snprintf(buf, size, "[%s] " COLORIZE_FMT "[%d]%s: " COLORIZE_FMT "%s" COLORIZE_FMT " " "%s\n",
 				msg->date,
 				COLORIZE(colors[msg->level], 0, msg->level_name),
 				msg->lwp,
@@ -1456,6 +1472,10 @@ static char *handle_logger_set_level(struct ast_cli_entry *e, int cmd, struct as
 	mod = ao2_find(log_container, a->argv[3], 0);
 	ao2_unlock(log_container);
 
+	if (!mod) {
+		ast_cli(a->fd, "Module '%s' is not exist!\n", a->argv[3]);
+	}
+
 	if (!strcasecmp(a->argv[6], "off")) {
 		ast_log_indexs[mod->index] = 0;
 	} else {
@@ -1465,8 +1485,7 @@ static char *handle_logger_set_level(struct ast_cli_entry *e, int cmd, struct as
 			for (index = 0; index <= ast_log_index && index < 65535; index++) {
 				ast_log_indexs[index] = AST_ALL_LOG_ENUM;
 			}
-		}
-		else {
+		} else {
 			if (!strcasecmp(a->argv[5], "ALL")) {
 				ast_log_indexs[mod->index] = AST_ALL_LOG_ENUM;
 			} else if (!strcasecmp(a->argv[5], "DEBUG")) {
@@ -1482,6 +1501,8 @@ static char *handle_logger_set_level(struct ast_cli_entry *e, int cmd, struct as
 			}
 		}
 	}
+
+	ao2_ref(mod, -1);
 
 	return CLI_SUCCESS;
 }
@@ -2134,6 +2155,8 @@ void close_logger(void)
 	closelog(); /* syslog */
 
 	AST_RWLIST_UNLOCK(&logchannels);
+
+	ast_log_modules_destroy();
 }
 
 void ast_callid_strnprint(char *buffer, size_t buffer_size, ast_callid callid)
@@ -2254,17 +2277,37 @@ static void __attribute__((format(printf, 7, 0))) ast_log_full(int level, int su
 	}
 
 #ifdef GRANDSTREAM_NETWORKS
-	switch (ast_log_indexs[index] & AST_ALL_LOG_ENUM) {
+	int flags = 0;
+	switch (ast_log_indexs[index] & (1 << level)) {
 	case AST_DEBUG_LOG_ENUM:
+		flags = 1;
+		break;
 	case AST_EVENT_LOG_ENUM:
+		flags = 1;
+		break;
 	case AST_NOTICE_LOG_ENUM:
+		flags = 1;
+		break;
 	case AST_WARNING_LOG_ENUM:
+		flags = 1;
+		break;
 	case AST_ERROR_LOG_ENUM:
+		flags = 1;
+		break;
 	case AST_VERBOSE_LOG_ENUM:
+		flags = 1;
+		break;
 	case AST_DTMF_LOGO_ENUM:
+		flags = 1;
+		break;
 	case AST_ALL_LOG_ENUM:
+		flags = 1;
 		break;
 	default:
+		return;
+	}
+
+	if (!flags) {
 		return;
 	}
 #endif

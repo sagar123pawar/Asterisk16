@@ -35,6 +35,10 @@
 #include "asterisk/module.h"
 #include "asterisk/strings.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 #define MWI_TYPE "application"
 #define MWI_SUBTYPE "simple-message-summary"
 

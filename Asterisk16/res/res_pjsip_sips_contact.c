@@ -29,6 +29,10 @@
 #include "asterisk/res_pjsip.h"
 #include "asterisk/module.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 /*!
  * \brief Upgrade Contact URIs on outgoing SIP requests to SIPS if required.
  *

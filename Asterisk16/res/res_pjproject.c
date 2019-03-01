@@ -113,6 +113,10 @@
 #include "asterisk/test.h"
 #include "asterisk/netsock2.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 static struct ast_sorcery *pjproject_sorcery;
 static pj_log_func *log_cb_orig;
 static unsigned decor_orig;
@@ -202,8 +206,10 @@ static void log_forwarder(int level, const char *data, int len)
 	int ast_level;
 	/* PJPROJECT doesn't provide much in the way of source info */
 	const char * log_source = "pjproject";
+#ifndef GRANDSTREAM_NETWORKS
 	int log_line = 0;
 	const char *log_func = "<?>";
+#endif
 
 	if (pjproject_log_intercept.fd != -1
 		&& pjproject_log_intercept.thread == pthread_self()) {
@@ -224,7 +230,15 @@ static void log_forwarder(int level, const char *data, int len)
 	/* PJPROJECT uses indention to indicate function call depth. We'll prepend
 	 * log statements with a tab so they'll have a better shot at lining
 	 * up */
+
+#ifdef GRANDSTREAM_NETWORKS
+	while (' ' == *data) {
+		data++;
+	}
+	ast_log(ast_level, "[%s] %s\n", log_source, data);
+#else
 	ast_log(ast_level, log_source, log_line, log_func, "\t%s\n", data);
+#endif
 }
 
 static void capture_buildopts_cb(int level, const char *data, int len)

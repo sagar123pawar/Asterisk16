@@ -44,6 +44,10 @@
 #include "asterisk/lock.h"
 #include "asterisk/res_pjproject.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 #define HISTORY_INITIAL_SIZE 256
 
 /*! \brief Pool factory used by pjlib to allocate memory. */

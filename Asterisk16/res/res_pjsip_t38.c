@@ -49,6 +49,10 @@
 #include "asterisk/res_pjsip.h"
 #include "asterisk/res_pjsip_session.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 /*! \brief The number of seconds after receiving a T.38 re-invite before automatically rejecting it */
 #define T38_AUTOMATIC_REJECTION_SECONDS 5
 

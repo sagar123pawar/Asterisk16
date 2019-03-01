@@ -49,6 +49,10 @@
 #include "asterisk/test.h"
 #include "asterisk/stream.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 #define SDP_HANDLER_BUCKETS 11
 
 #define MOD_DATA_ON_RESPONSE "on_response"

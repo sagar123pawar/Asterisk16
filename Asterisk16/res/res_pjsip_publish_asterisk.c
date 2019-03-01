@@ -38,6 +38,10 @@
 #include "asterisk/logger.h"
 #include "asterisk/app.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 /*** DOCUMENTATION
 	<configInfo name="res_pjsip_publish_asterisk" language="en_US">
 		<synopsis>SIP resource for inbound and outbound Asterisk event publications</synopsis>

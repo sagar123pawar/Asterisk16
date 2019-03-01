@@ -41,6 +41,9 @@
 #include "include/chan_pjsip.h"
 #include "include/cli_functions.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
 
 static int cli_channel_iterate(void *endpoint, ao2_callback_fn callback, void *arg)
 {

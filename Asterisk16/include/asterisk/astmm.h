@@ -120,7 +120,11 @@ int __ast_repl_vasprintf(char **strp, const char *format, va_list ap, const char
 
 #if !defined(ASTMM_LIBC)
 /* BLOCK libc allocators by default. */
+#ifdef GRANDSTREAM_NETWORKS
+#define ASTMM_LIBC ASTMM_IGNORE
+#else
 #define ASTMM_LIBC ASTMM_BLOCK
+#endif
 #endif
 
 #if ASTMM_LIBC == ASTMM_IGNORE

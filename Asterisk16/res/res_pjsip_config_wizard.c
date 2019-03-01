@@ -50,6 +50,10 @@
 #include "asterisk/sorcery.h"
 #include "asterisk/vector.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 /*** DOCUMENTATION
 	<configInfo name="res_pjsip_config_wizard" language="en_US">
 		<synopsis>Module that privides simple configuration wizard capabilities.</synopsis>

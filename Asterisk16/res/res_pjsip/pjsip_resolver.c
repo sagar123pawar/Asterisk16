@@ -33,6 +33,10 @@
 #include "asterisk/taskprocessor.h"
 #include "asterisk/threadpool.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 #ifdef HAVE_PJSIP_EXTERNAL_RESOLVER
 
 /*! \brief Structure which contains transport+port information for an active query */

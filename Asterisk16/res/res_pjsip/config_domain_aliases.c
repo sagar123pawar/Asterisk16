@@ -26,6 +26,10 @@
 #include "asterisk/logger.h"
 #include "asterisk/sorcery.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 static void domain_alias_destroy(void *obj)
 {
 	struct ast_sip_domain_alias *alias = obj;

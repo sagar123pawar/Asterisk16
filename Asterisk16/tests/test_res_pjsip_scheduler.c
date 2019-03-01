@@ -40,6 +40,10 @@
 #include "asterisk/res_pjsip.h"
 #include "asterisk/utils.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 #define CATEGORY "/res/res_pjsip/scheduler/"
 
 struct test_data {

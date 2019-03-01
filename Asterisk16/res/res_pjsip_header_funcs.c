@@ -36,6 +36,10 @@
 #include "asterisk/module.h"
 #include "asterisk/utils.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 /*** DOCUMENTATION
 	<function name="PJSIP_HEADER" language="en_US">
 		<synopsis>

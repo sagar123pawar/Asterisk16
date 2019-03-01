@@ -28,6 +28,10 @@
 #include "asterisk/astobj2.h"
 #include "include/res_pjsip_private.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 /*! \brief Number of buckets for monitored transports */
 #define TRANSPORTS_BUCKETS 127
 

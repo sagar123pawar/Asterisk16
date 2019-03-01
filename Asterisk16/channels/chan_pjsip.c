@@ -71,6 +71,10 @@
 #include "pjsip/include/dialplan_functions.h"
 #include "pjsip/include/cli_functions.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 AST_THREADSTORAGE(uniqueid_threadbuf);
 #define UNIQUEID_BUFSIZE 256
 

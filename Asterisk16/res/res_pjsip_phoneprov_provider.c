@@ -49,6 +49,10 @@
 #include "asterisk/phoneprov.h"
 #include "res_pjsip/include/res_pjsip_private.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 /*** DOCUMENTATION
 	<configInfo name="res_pjsip_phoneprov_provider" language="en_US">
 		<synopsis>Module that integrates res_pjsip with res_phoneprov.</synopsis>

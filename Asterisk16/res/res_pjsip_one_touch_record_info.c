@@ -33,6 +33,10 @@
 #include "asterisk/module.h"
 #include "asterisk/features_config.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 static void send_response(struct ast_sip_session *session, int code, struct pjsip_rx_data *rdata)
 {
 	pjsip_tx_data *tdata;

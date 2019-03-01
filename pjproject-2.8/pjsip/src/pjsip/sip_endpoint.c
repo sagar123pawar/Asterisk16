@@ -889,16 +889,30 @@ PJ_DEF(pj_status_t) pjsip_endpt_process_rx_data( pjsip_endpoint *endpt,
     /* Distribute */
     if (msg->type == PJSIP_REQUEST_MSG) {
 	do {
+#ifdef GRANDSTREAM_NETWORKS
+		if (mod->on_rx_request) {
+			PJ_LOG(5, (THIS_FILE, "Distributing recv rdata request to modules: %s", mod->name));
+			handled = (*mod->on_rx_request)(rdata);
+		}
+#else
 	    if (mod->on_rx_request)
 		handled = (*mod->on_rx_request)(rdata);
+#endif
 	    if (handled)
 		break;
 	    mod = mod->next;
 	} while (mod != &endpt->module_list);
     } else {
 	do {
+#ifdef GRANDSTREAM_NETWORKS
+		if (mod->on_rx_response) {
+			PJ_LOG(5, (THIS_FILE, "Distributing recv rdata response to modules: %s", mod->name));
+			handled = (*mod->on_rx_response)(rdata);
+		}
+#else
 	    if (mod->on_rx_response)
 		handled = (*mod->on_rx_response)(rdata);
+#endif
 	    if (handled)
 		break;
 	    mod = mod->next;
@@ -1075,8 +1089,15 @@ static pj_status_t endpt_on_tx_msg( pjsip_endpoint *endpt,
     mod = endpt->module_list.prev;
     if (tdata->msg->type == PJSIP_REQUEST_MSG) {
 	while (mod != &endpt->module_list) {
+#ifdef GRANDSTREAM_NETWORKS
+		if (mod->on_tx_request) {
+			PJ_LOG(4,(THIS_FILE, "Distributing sent tdata request to modules: %s", mod->name));
+			status = (*mod->on_tx_request)(tdata);
+		}
+#else
 	    if (mod->on_tx_request)
 		status = (*mod->on_tx_request)(tdata);
+#endif
 	    if (status != PJ_SUCCESS)
 		break;
 	    mod = mod->prev;
@@ -1084,8 +1105,15 @@ static pj_status_t endpt_on_tx_msg( pjsip_endpoint *endpt,
 
     } else {
 	while (mod != &endpt->module_list) {
+#ifdef GRANDSTREAM_NETWORKS
+		if (mod->on_tx_response) {
+			PJ_LOG(4,(THIS_FILE, "Distributing sent tdata response to modules: %s", mod->name));
+			status = (*mod->on_tx_response)(tdata);
+		}
+#else
 	    if (mod->on_tx_response)
 		status = (*mod->on_tx_response)(tdata);
+#endif
 	    if (status != PJ_SUCCESS)
 		break;
 	    mod = mod->prev;

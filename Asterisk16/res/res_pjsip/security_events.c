@@ -31,6 +31,10 @@
 #include "asterisk/res_pjsip.h"
 #include "asterisk/security_events.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 static enum ast_transport security_event_get_transport(pjsip_rx_data *rdata)
 {
 	if (rdata->tp_info.transport->key.type == PJSIP_TRANSPORT_UDP ||

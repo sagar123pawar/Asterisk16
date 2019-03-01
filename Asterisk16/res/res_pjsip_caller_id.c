@@ -33,6 +33,10 @@
 #include "asterisk/module.h"
 #include "asterisk/callerid.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 /*!
  * \internal
  * \brief Set an ast_party_id name and number based on an identity header.

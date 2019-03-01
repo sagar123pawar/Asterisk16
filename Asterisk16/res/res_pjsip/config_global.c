@@ -29,6 +29,10 @@
 #include "asterisk/ast_version.h"
 #include "asterisk/res_pjsip_cli.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 #define DEFAULT_MAX_FORWARDS 70
 #define DEFAULT_KEEPALIVE_INTERVAL 90
 #define DEFAULT_USERAGENT_PREFIX "Asterisk PBX"

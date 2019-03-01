@@ -35,6 +35,10 @@
 #include "asterisk/res_pjsip_presence_xml.h"
 #include "asterisk/res_pjsip_body_generator_types.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 /*! \brief Structure which contains dialog-info+xml state information */
 struct dialog_info_xml_state {
 	/*! \brief Version to place into the next NOTIFY */

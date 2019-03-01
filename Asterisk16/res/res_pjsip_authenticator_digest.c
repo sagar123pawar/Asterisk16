@@ -25,6 +25,10 @@
 #include "asterisk/module.h"
 #include "asterisk/strings.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 /*** MODULEINFO
 	<depend>pjproject</depend>
 	<depend>res_pjsip</depend>

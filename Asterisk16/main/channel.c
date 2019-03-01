@@ -75,6 +75,10 @@
 #include "asterisk/stream.h"
 #include "asterisk/message.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("Channel");
+#endif
+
 /*** DOCUMENTATION
  ***/
 

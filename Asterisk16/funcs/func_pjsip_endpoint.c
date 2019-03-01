@@ -44,6 +44,10 @@
 #include "asterisk/sorcery.h"
 #include "asterisk/res_pjsip.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 /*** DOCUMENTATION
 	<function name="PJSIP_ENDPOINT" language="en_US">
 		<synopsis>

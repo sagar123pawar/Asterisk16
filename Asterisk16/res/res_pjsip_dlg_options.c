@@ -32,6 +32,10 @@
 #include "asterisk/res_pjsip.h"
 #include "asterisk/res_pjsip_session.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 #define DEFAULT_LANGUAGE "en"
 #define DEFAULT_ENCODING "text/plain"
 

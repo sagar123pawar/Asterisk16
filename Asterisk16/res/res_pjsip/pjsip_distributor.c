@@ -27,6 +27,10 @@
 #include "asterisk/threadpool.h"
 #include "asterisk/res_pjsip_cli.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("pjsip");
+#endif
+
 static int distribute(void *data);
 static pj_bool_t distributor(pjsip_rx_data *rdata);
 static pj_status_t record_serializer(pjsip_tx_data *tdata);
@@ -734,6 +738,9 @@ static pj_bool_t endpoint_lookup(pjsip_rx_data *rdata)
 		return PJ_FALSE;
 	}
 
+#ifdef GRANDSTREAM_NETWORKS
+	ast_log(LOG_NOTICE, "Start identify endpoint!\n");
+#endif
 	endpoint = ast_sip_identify_endpoint(rdata);
 	if (endpoint) {
 		unid = ao2_find(unidentified_requests, rdata->pkt_info.src_name, OBJ_SEARCH_KEY);
