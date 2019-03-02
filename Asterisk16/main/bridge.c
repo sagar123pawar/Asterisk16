@@ -119,6 +119,10 @@
 #include "asterisk/core_unreal.h"
 #include "asterisk/causes.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("Bridge");
+#endif
+
 /*! All bridges container. */
 static struct ao2_container *bridges;
 

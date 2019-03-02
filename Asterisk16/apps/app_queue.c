@@ -110,6 +110,10 @@
 #include "asterisk/bridge_basic.h"
 #include "asterisk/max_forwards.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("CallQueue");
+#endif
+
 /*!
  * \par Please read before modifying this file.
  * There are three locks which are regularly used

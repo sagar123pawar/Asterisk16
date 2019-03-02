@@ -48,6 +48,10 @@
 #include "asterisk/format_cache.h"
 #include "asterisk/test.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("Bridge");
+#endif
+
 #define NORMAL_FLAGS	(AST_BRIDGE_FLAG_DISSOLVE_HANGUP | AST_BRIDGE_FLAG_DISSOLVE_EMPTY \
 			| AST_BRIDGE_FLAG_SMART)
 

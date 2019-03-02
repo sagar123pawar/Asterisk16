@@ -77,6 +77,10 @@
 #include "asterisk/features_config.h"
 #include "asterisk/max_forwards.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("Bridge");
+#endif
+
 /*** DOCUMENTATION
 	<application name="Bridge" language="en_US">
 		<synopsis>

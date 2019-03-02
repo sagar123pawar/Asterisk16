@@ -264,6 +264,11 @@ static void inv_set_state(pjsip_inv_session *inv, pjsip_inv_state state,
     pj_bool_t dont_notify = PJ_FALSE;
     pj_status_t status;
 
+#ifdef GRANDSTREAM_NETWORKS
+	PJ_LOG(4,(inv->obj_name, "Inv state changed from '%s' to '%s', event=%s",
+		inv_state_names[prev_state], inv_state_names[state], pjsip_event_str(e->type)));
+#endif
+
     /* Prevent STATE_CALLING from being reported more than once because
      * of authentication
      * https://trac.pjsip.org/repos/ticket/1318

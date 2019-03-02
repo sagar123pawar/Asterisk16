@@ -2066,6 +2066,9 @@ void pjsip_dlg_on_tsx_state( pjsip_dialog *dlg,
 	if (!dlg->usage[i]->on_tsx_state)
 	    continue;
 
+#ifdef GRANDSTREAM_NETWORKS
+	PJ_LOG(5, (dlg->obj_name, "UserAgent upon receiving transaction state notification to module[%s]", dlg->usage[i]->name));
+#endif
 	(*dlg->usage[i]->on_tsx_state)(tsx, e);
     }
 

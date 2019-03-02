@@ -2623,6 +2623,10 @@ static pj_status_t tsx_on_state_trying( pjsip_transaction *tsx,
     /* This state is only for UAS */
     pj_assert(tsx->role == PJSIP_ROLE_UAS);
 
+#ifdef GRANDSTREAM_NETWORKS
+	PJ_LOG(5,(tsx->obj_name, "Transaction on 'trying' state"));
+#endif
+
     /* Better be transmission of response message.
      * If we've got request retransmission, this means that the TU hasn't
      * transmitted any responses within 500 ms, which is not allowed. If
