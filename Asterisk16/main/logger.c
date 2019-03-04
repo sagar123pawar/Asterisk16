@@ -254,6 +254,8 @@ AST_THREADSTORAGE(log_buf);
 #define LOG_BUF_INIT_SIZE       256
 
 #ifdef GRANDSTREAM_NETWORKS
+#include <sqlite3.h>
+
 static int ast_log_index = 1;
 static int ast_log_indexs[65535] = {0};
 
@@ -264,6 +266,85 @@ struct ast_log_modules {
 	int index;
 	char *modname;
 };
+
+sqlite3 *logger_db = NULL;
+const char *logger_sql = "CREATE TABLE IF NOT EXISTS logger(key VARCHAR(256), value VARCHAR(256), PRIMARY KEY(key))";
+
+static int ast_logger_db_insert(void)
+{
+	struct ao2_iterator iter;
+	struct ast_log_modules *mod = NULL;
+	char sql[256] = {0};
+	char *zerrmsg = NULL;
+
+	ao2_lock(log_container);
+	iter = ao2_iterator_init(log_container, 0);
+	while ((mod = ao2_t_iterator_next(&iter, "Iterate through queues"))) {
+		snprintf(sql, sizeof(sql) - 1, "REPLACE INTO logger(key, value) values ('%s', '%d')", mod->modname, ast_log_indexs[mod->index]);
+		sqlite3_exec(logger_db, sql, NULL, NULL, &zerrmsg);
+		if (zerrmsg) {
+			sqlite3_free(zerrmsg);
+		}
+		ao2_ref(mod, -1);
+	}
+	ao2_iterator_destroy(&iter);
+	ao2_unlock(log_container);
+
+	return 0;
+}
+
+static int ast_logger_db_select(void)
+{
+	char sql[256] = {0};
+	char **result = NULL;
+	char *zerrmsg = NULL;
+	int nrow = 0, ncolumn = 0;
+	struct ast_log_modules *mod = NULL;
+	struct ao2_iterator iter;
+
+	ao2_lock(log_container);
+	iter = ao2_iterator_init(log_container, 0);
+	while ((mod = ao2_t_iterator_next(&iter, "Iterate through queues"))) {
+		snprintf(sql, sizeof(sql) - 1, "SELECT value FROM logger WHERE key = '%s'", mod->modname);
+		sqlite3_get_table(logger_db, sql, &result, &nrow, &ncolumn, &zerrmsg);
+		if (zerrmsg) {
+			sqlite3_free(zerrmsg);
+		} else if ('\0' != result[1]) {
+			ast_log_indexs[mod->index] = atoi(result[1]);
+		}
+		ao2_ref(mod, -1);
+	}
+	ao2_iterator_destroy(&iter);
+	ao2_unlock(log_container);
+
+	return 0;
+}
+
+static int ast_logger_db_init(void)
+{
+	int len = 0;
+	char logger_dbname[512] = {0};
+	char *zerrmsg = NULL;
+
+	snprintf(logger_dbname, sizeof(logger_dbname) - 1, "%s_logger.sqlite3", ast_config_AST_DB);
+
+	if (!logger_db) {
+		len = sqlite3_open(logger_dbname, &logger_db);
+		if (len) {
+			ast_log(LOG_ERROR, "Can't open database: %s\n", sqlite3_errmsg(logger_db));
+			sqlite3_close(logger_db);
+			logger_db = NULL;
+			return - 1;
+		}
+
+		sqlite3_exec(logger_db, logger_sql, NULL, NULL, &zerrmsg);
+		if (zerrmsg) {
+			sqlite3_free(zerrmsg);
+		}
+	}
+
+	return 0;
+}
 
 static void ast_log_modules_dtor(void *obj)
 {
@@ -353,6 +434,8 @@ void ast_log_module_update(void)
 	for (index = 0; index <= ast_log_index && index < 65535; index++) {
 		ast_log_indexs[index] = 0;
 	}
+
+	ast_logger_db_select();
 }
 
 static char *ast_log_find_modname(const char *modname, int skip_count)
@@ -1441,6 +1524,26 @@ int ast_logger_rotate_channel(const char *log_channel)
 }
 
 #ifdef GRANDSTREAM_NETWORKS
+static char *handle_logger_save_switch(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
+{
+	switch (cmd) {
+	case CLI_INIT:
+		e->command = "logger save switch";
+		e->usage = "Usage: logger save switch\n";
+		return NULL;
+	case CLI_GENERATE:
+		return NULL;
+	}
+
+	if (a->argc < 3) {
+		return CLI_SHOWUSAGE;
+	}
+
+	ast_logger_db_insert();
+
+	return CLI_SUCCESS;
+}
+
 static char *handle_logger_set_level(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
 {
 	struct ast_log_modules *mod = NULL;
@@ -1780,6 +1883,9 @@ static struct ast_cli_entry cli_logger[] = {
 	AST_CLI_DEFINE(handle_logger_set_level, "Enables/Disables a specific logging level for this console"),
 	AST_CLI_DEFINE(handle_logger_add_channel, "Adds a new logging channel"),
 	AST_CLI_DEFINE(handle_logger_remove_channel, "Removes a logging channel"),
+#ifdef GRANDSTREAM_NETWORKS
+	AST_CLI_DEFINE(handle_logger_save_switch, "Save logger switch"),
+#endif
 };
 
 static void _handle_SIGXFSZ(int sig)
@@ -2115,6 +2221,10 @@ int init_logger(void)
 	if (res) {
 		ast_log(LOG_ERROR, "Errors detected in logger.conf.  Default console logging is being used.\n");
 	}
+
+#ifdef GRANDSTREAM_NETWORKS
+	ast_logger_db_init();
+#endif
 
 	return 0;
 }

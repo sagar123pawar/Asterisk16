@@ -611,54 +611,6 @@ struct ast_db_entry *ast_ucm_db_gettree(const char *family, const char *keytree)
 
 	return ret;
 }
-
-/* Add by bfdu for reduce load pjsip time, 2017.03.09 */
-void ast_db_gettree_for_pjsip_load(void)
-{
-	if (!g_ast_db_ha_enable) {
-		ast_log(LOG_DEBUG, "ast_db_gettree_for_pjsip_load HA is not enable\n");
-		return;
-	}
-	db_entry_for_pjsip_load = ast_db_gettree("registrar/contact", NULL);
-	return;
-}
-
-void ast_db_freetree_for_pjsip_load(void)
-{
-	if (!g_ast_db_ha_enable) {
-		ast_log(LOG_DEBUG, "ast_db_freetree_for_pjsip_load HA is not enable\n");
-		return;
-	}
-	ast_db_freetree(db_entry_for_pjsip_load);
-	db_entry_for_pjsip_load = NULL;
-	return;
-}
-
-void ast_db_set_ha_enable_for_pjsip_load(void)
-{
-	FILE *ha_fp = NULL;
-	char on_buf[64] = { 0 };
-	    
-	/* Get the ha_enable */
-	ha_fp = popen("nvram get haon", "r");
-	if (ha_fp == NULL)
-	{
-		ast_log(LOG_ERROR, "ast_db haon Read error\n");
-		return;
-	}
-	while (ha_fp != NULL && (!feof(ha_fp)) && (fgets(on_buf, sizeof(on_buf) - 1, ha_fp) != NULL)) 
-	{
-		ast_log(LOG_DEBUG, "ast_db haon Read: [%s]\n", on_buf);
-	}
-	g_ast_db_ha_enable = atoi(on_buf);
-
-	ast_log(LOG_DEBUG, "ast_db ha_enable is %d\n", g_ast_db_ha_enable);
-
-	pclose(ha_fp);
-	ha_fp = NULL;
-	return;
-}
-/* End by bfdu */
 #endif
 
 

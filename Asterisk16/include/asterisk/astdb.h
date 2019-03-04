@@ -147,11 +147,6 @@ struct ast_db_entry *ast_ucm_db_gettree(const char *family, const char *keytree)
 
 /*! \brief Free structure created by ast_db_gettree() */
 void ast_ucm_db_freetree(struct ast_db_entry *entry);
-
-/* Add by bfdu for reduce load pjsip time, 2017.03.09 */
-void ast_db_gettree_for_pjsip_load(void);
-void ast_db_freetree_for_pjsip_load(void);
-void ast_db_set_ha_enable_for_pjsip_load(void);
 #endif
 
 #if defined(__cplusplus) || defined(c_plusplus)
