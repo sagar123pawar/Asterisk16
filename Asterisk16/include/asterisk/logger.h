@@ -643,7 +643,6 @@ void ast_logger_set_queue_limit(int queue_limit);
 int ast_logger_get_queue_limit(void);
 
 #ifdef GRANDSTREAM_NETWORKS
-extern int ast_log_indexs[65535];
 enum ast_log_enum {
 	AST_DEBUG_LOG_ENUM   = 1 << __LOG_DEBUG,
 	AST_EVENT_LOG_ENUM   = 1 << 1,

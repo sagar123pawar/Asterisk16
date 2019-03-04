@@ -90,6 +90,10 @@
 #include "asterisk/smoother.h"
 #include "asterisk/format_cache.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("fax");
+#endif
+
 /*** DOCUMENTATION
 	<application name="ReceiveFAX" language="en_US" module="res_fax">
 		<synopsis>
@@ -1029,12 +1033,20 @@ const char *ast_fax_state_to_str(enum ast_fax_state state)
 	}
 }
 
+#ifdef GRANDSTREAM_NETWORKS
+void ast_fax_log(int level, const char *msg)
+#else
 void ast_fax_log(int level, const char *file, const int line, const char *function, const char *msg)
+#endif
 {
 	if (fax_logger_level != -1) {
 		ast_log_dynamic_level(fax_logger_level, "%s", msg);
 	} else {
+#ifdef GRANDSTREAM_NETWORKS
+		ast_log(level, "[FAX] %s\n", msg);
+#else
 		ast_log(level, file, line, function, "%s", msg);
+#endif
 	}
 }
 

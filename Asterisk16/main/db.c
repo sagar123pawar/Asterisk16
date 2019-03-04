@@ -51,6 +51,9 @@
 #include "asterisk/cli.h"
 #include "asterisk/utils.h"
 #include "asterisk/manager.h"
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("database");
+#endif
 
 /*** DOCUMENTATION
 	<manager name="DBGet" language="en_US">
@@ -74,6 +77,19 @@
 			<parameter name="Family" required="true" />
 			<parameter name="Key" required="true" />
 			<parameter name="Val" />
+		</syntax>
+		<description>
+		</description>
+	</manager>
+	<manager name="DBPutTree" language="en_US">
+		<synopsis>
+			Put DB entry batch.
+		</synopsis>
+		<syntax>
+			<xi:include xpointer="xpointer(/docs/manager[@name='Login']/syntax/parameter[@name='ActionID'])" />
+			<parameter name="Family" required="true" />
+			<parameter name="Keys" required="true" />
+			<parameter name="Vals" />
 		</syntax>
 		<description>
 		</description>
@@ -102,6 +118,54 @@
 		<description>
 		</description>
 	</manager>
+	 <manager name="UCMDBPut" language="en_US">
+		<synopsis>
+			Put DB entry.
+		</synopsis>
+		<syntax>
+			<xi:include xpointer="xpointer(/docs/manager[@name='Login']/syntax/parameter[@name='ActionID'])" />
+			<parameter name="Family" required="true" />
+			<parameter name="Key" required="true" />
+			<parameter name="Val" />
+		</syntax>
+		<description>
+		</description>
+	</manager>
+	<manager name="UCMDBPutTree" language="en_US">
+		<synopsis>
+			Put DB entry batch.
+		</synopsis>
+		<syntax>
+			<xi:include xpointer="xpointer(/docs/manager[@name='Login']/syntax/parameter[@name='ActionID'])" />
+			<parameter name="Family" required="true" />
+			<parameter name="Keys" required="true" />
+			<parameter name="Vals" />
+		</syntax>
+		<description>
+		</description>
+	</manager>
+ 	<manager name="UCMDBDelTree" language="en_US">
+		<synopsis>
+			Delete DB Tree.
+		</synopsis>
+		<syntax>
+			<xi:include xpointer="xpointer(/docs/manager[@name='Login']/syntax/parameter[@name='ActionID'])" />
+			<parameter name="Family" required="true" />
+			<parameter name="Key" />
+		</syntax>
+		<description>
+		</description>
+	</manager>
+ 	<manager name="UCMDBDelAll" language="en_US">
+		<synopsis>
+			Delete DB All.
+		</synopsis>
+		<syntax>
+			<xi:include xpointer="xpointer(/docs/manager[@name='Login']/syntax/parameter[@name='ActionID'])" />
+		</syntax>
+		<description>
+		</description>
+	</manager>
  ***/
 
 #define MAX_DB_FIELD 256
@@ -113,6 +177,22 @@ static int doexit;
 static int dosync;
 
 static void db_sync(void);
+
+#ifdef GRANDSTREAM_NETWORKS
+
+AST_MUTEX_DEFINE_STATIC(ucm_dblock);
+static ast_cond_t ucm_dbcond;
+static sqlite3 *ucm_astdb;
+static pthread_t ucm_syncthread;
+static int ucm_doexit;
+static int ucm_dosync;
+
+static void ucm_db_sync(void);
+
+static struct ast_db_entry *db_entry_for_pjsip_load = NULL;
+static int g_ast_db_ha_enable = 0;
+#endif
+
 
 #define DEFINE_SQL_STATEMENT(stmt,sql) static sqlite3_stmt *stmt; \
 	const char stmt##_sql[] = sql;
@@ -153,6 +233,434 @@ static int init_stmt(sqlite3_stmt **stmt, const char *sql, size_t len)
 
 	return 0;
 }
+
+#ifdef GRANDSTREAM_NETWORKS
+DEFINE_SQL_STATEMENT(ucm_put_stmt, "INSERT OR REPLACE INTO astdb (key, value) VALUES (?, ?)")
+DEFINE_SQL_STATEMENT(ucm_get_stmt, "SELECT value FROM astdb WHERE key=?")
+DEFINE_SQL_STATEMENT(ucm_del_stmt, "DELETE FROM astdb WHERE key=?")
+DEFINE_SQL_STATEMENT(ucm_deltree_stmt, "DELETE FROM astdb WHERE key || '/' LIKE ? || '/' || '%'")
+DEFINE_SQL_STATEMENT(ucm_deltree_all_stmt, "DELETE FROM astdb")
+DEFINE_SQL_STATEMENT(ucm_gettree_stmt, "SELECT key, value FROM astdb WHERE key || '/' LIKE ? || '/' || '%' ORDER BY key")
+DEFINE_SQL_STATEMENT(ucm_gettree_all_stmt, "SELECT key, value FROM astdb ORDER BY key")
+DEFINE_SQL_STATEMENT(ucm_showkey_stmt, "SELECT key, value FROM astdb WHERE key LIKE '%' || '/' || ? ORDER BY key")
+DEFINE_SQL_STATEMENT(ucm_create_astdb_stmt, "CREATE TABLE IF NOT EXISTS astdb(key VARCHAR(256), value VARCHAR(256), PRIMARY KEY(key))")
+
+static int ucm_init_stmt(sqlite3_stmt **stmt, const char *sql, size_t len)
+{
+	ast_mutex_lock(&ucm_dblock);
+	if (sqlite3_prepare(ucm_astdb, sql, len, stmt, NULL) != SQLITE_OK) {
+		ast_log(LOG_WARNING, "Couldn't prepare statement '%s': %s\n", sql, sqlite3_errmsg(ucm_astdb));
+		ast_mutex_unlock(&ucm_dblock);
+		return -1;
+	}
+	ast_mutex_unlock(&ucm_dblock);
+
+	return 0;
+}
+
+static int ucm_clean_stmt(sqlite3_stmt **stmt, const char *sql)
+{
+	if (sqlite3_finalize(*stmt) != SQLITE_OK) {
+		ast_log(LOG_WARNING, "Couldn't finalize statement '%s': %s\n", sql, sqlite3_errmsg(ucm_astdb));
+		*stmt = NULL;
+		return -1;
+	}
+	*stmt = NULL;
+	return 0;
+}
+
+static void ucm_clean_statements(void)
+{
+	ucm_clean_stmt(&ucm_get_stmt, ucm_get_stmt_sql);
+	ucm_clean_stmt(&ucm_del_stmt, ucm_del_stmt_sql);
+	ucm_clean_stmt(&ucm_deltree_stmt, ucm_deltree_stmt_sql);
+	ucm_clean_stmt(&ucm_deltree_all_stmt, ucm_deltree_all_stmt_sql);
+	ucm_clean_stmt(&ucm_gettree_stmt, ucm_gettree_stmt_sql);
+	ucm_clean_stmt(&ucm_gettree_all_stmt, ucm_gettree_all_stmt_sql);
+	ucm_clean_stmt(&ucm_showkey_stmt, ucm_showkey_stmt_sql);
+	ucm_clean_stmt(&ucm_put_stmt, ucm_put_stmt_sql);
+	ucm_clean_stmt(&ucm_create_astdb_stmt, ucm_create_astdb_stmt_sql);
+}
+
+static int ucm_init_statements(void)
+{
+	/* Don't initialize create_astdb_statment here as the astdb table needs to exist
+	 * brefore these statments can be initialized */
+	return ucm_init_stmt(&ucm_get_stmt, ucm_get_stmt_sql, sizeof(ucm_get_stmt_sql))
+	|| ucm_init_stmt(&ucm_del_stmt, ucm_del_stmt_sql, sizeof(ucm_del_stmt_sql))
+	|| ucm_init_stmt(&ucm_deltree_stmt, ucm_deltree_stmt_sql, sizeof(ucm_deltree_stmt_sql))
+	|| ucm_init_stmt(&ucm_deltree_all_stmt, ucm_deltree_all_stmt_sql, sizeof(ucm_deltree_all_stmt_sql))
+	|| ucm_init_stmt(&ucm_gettree_stmt, ucm_gettree_stmt_sql, sizeof(ucm_gettree_stmt_sql))
+	|| ucm_init_stmt(&ucm_gettree_all_stmt, ucm_gettree_all_stmt_sql, sizeof(ucm_gettree_all_stmt_sql))
+	|| ucm_init_stmt(&ucm_showkey_stmt, ucm_showkey_stmt_sql, sizeof(ucm_showkey_stmt_sql))
+	|| ucm_init_stmt(&ucm_put_stmt, ucm_put_stmt_sql, sizeof(ucm_put_stmt_sql));
+}
+
+static int ucm_db_create_astdb(void)
+{
+	int res = 0;
+
+	if (!ucm_create_astdb_stmt) {
+		ucm_init_stmt(&ucm_create_astdb_stmt, ucm_create_astdb_stmt_sql, sizeof(ucm_create_astdb_stmt_sql));
+	}
+
+	ast_mutex_lock(&ucm_dblock);
+	if (sqlite3_step(ucm_create_astdb_stmt) != SQLITE_DONE) {
+		ast_log(LOG_WARNING, "Couldn't create astdb table: %s\n", sqlite3_errmsg(ucm_astdb));
+		res = -1;
+	}
+	sqlite3_reset(ucm_create_astdb_stmt);
+	ucm_db_sync();
+	ast_mutex_unlock(&ucm_dblock);
+
+	return res;
+}
+
+static int ucm_db_open(void)
+{
+	char *dbname;
+
+	if (!(dbname = ast_alloca(strlen(ast_config_AST_DB) + sizeof(".sqlite3")+sizeof("ucm_")))) {
+		return -1;
+	}
+	strcpy(dbname, ast_config_AST_DB);
+	dbname[strlen(ast_config_AST_DB)-5]='\0';
+	strcat(dbname, "ucm_astdb.sqlite3");
+
+	ast_mutex_lock(&ucm_dblock);
+	if (sqlite3_open(dbname, &ucm_astdb) != SQLITE_OK) {
+		ast_log(LOG_WARNING, "Unable to open Asterisk database '%s': %s\n", dbname, sqlite3_errmsg(ucm_astdb));
+		sqlite3_close(ucm_astdb);
+		ast_mutex_unlock(&ucm_dblock);
+		return -1;
+	}
+
+	ast_mutex_unlock(&ucm_dblock);
+
+	return 0;
+}
+
+static int ucm_db_init(void)
+{
+	if (ucm_astdb) {
+		return 0;
+	}
+
+	if (ucm_db_open() || ucm_db_create_astdb() || ucm_init_statements()) {
+		return -1;
+	}
+
+	return 0;
+}
+
+/* We purposely don't lock around the sqlite3 call because the transaction
+ * calls will be called with the database lock held. For any other use, make
+ * sure to take the dblock yourself. */
+static int ucm_db_execute_sql(const char *sql, int (*callback)(void *, int, char **, char **), void *arg)
+{
+	char *errmsg = NULL;
+	int res =0;
+
+	if (sqlite3_exec(ucm_astdb, sql, callback, arg, &errmsg) != SQLITE_OK) {
+		ast_log(LOG_WARNING, "Error executing SQL (%s): %s\n", sql, errmsg);
+		sqlite3_free(errmsg);
+		res = -1;
+	}
+
+	return res;
+}
+
+static int ast_ucm_db_begin_transaction(void)
+{
+	return ucm_db_execute_sql("BEGIN TRANSACTION", NULL, NULL);
+}
+
+static int ast_ucm_db_commit_transaction(void)
+{
+	return ucm_db_execute_sql("COMMIT", NULL, NULL);
+}
+
+static int ast_ucm_db_rollback_transaction(void)
+{
+	return ucm_db_execute_sql("ROLLBACK", NULL, NULL);
+}
+
+static int ast_ucm_db_delall(void)
+{
+	return ucm_db_execute_sql(ucm_deltree_all_stmt_sql, NULL, NULL);
+}
+
+int ast_ucm_db_put(const char *family, const char *key, const char *value ,int iscommit)
+{
+	char fullkey[MAX_DB_FIELD];
+	size_t fullkey_len;
+	int res = 0;
+
+	if (strlen(family) + strlen(key) + 2 > sizeof(fullkey) - 1) {
+		ast_log(LOG_WARNING, "Family and key length must be less than %zu bytes\n", sizeof(fullkey) - 3);
+		return -1;
+	}
+
+	fullkey_len = snprintf(fullkey, sizeof(fullkey), "/%s/%s", family, key);
+
+	ast_mutex_lock(&ucm_dblock);
+	if (sqlite3_bind_text(ucm_put_stmt, 1, fullkey, fullkey_len, SQLITE_STATIC) != SQLITE_OK) {
+		ast_log(LOG_WARNING, "Couldn't bind key to stmt: %s\n", sqlite3_errmsg(ucm_astdb));
+		res = -1;
+	} else if (sqlite3_bind_text(ucm_put_stmt, 2, value, -1, SQLITE_STATIC) != SQLITE_OK) {
+		ast_log(LOG_WARNING, "Couldn't bind value to stmt: %s\n", sqlite3_errmsg(ucm_astdb));
+		res = -1;
+	} else if (sqlite3_step(ucm_put_stmt) != SQLITE_DONE) {
+		ast_log(LOG_WARNING, "Couldn't execute statment: %s\n", sqlite3_errmsg(ucm_astdb));
+		res = -1;
+	}
+
+	sqlite3_reset(ucm_put_stmt);
+	if(iscommit){
+		ucm_db_sync();
+	}
+	ast_mutex_unlock(&ucm_dblock);
+
+	return res;
+}
+
+/*!
+ * \internal
+ * \brief Get key value specified by family/key.
+ *
+ * Gets the value associated with the specified \a family and \a key, and
+ * stores it, either into the fixed sized buffer specified by \a buffer
+ * and \a bufferlen, or as a heap allocated string if \a bufferlen is -1.
+ *
+ * \note If \a bufferlen is -1, \a buffer points to heap allocated memory
+ *       and must be freed by calling ast_free().
+ *
+ * \retval -1 An error occurred
+ * \retval 0 Success
+ */
+static int ucm_db_get_common(const char *family, const char *key, char **buffer, int bufferlen)
+{
+	const unsigned char *result;
+	char fullkey[MAX_DB_FIELD];
+	size_t fullkey_len;
+	int res = 0;
+
+	if (strlen(family) + strlen(key) + 2 > sizeof(fullkey) - 1) {
+		ast_log(LOG_WARNING, "Family and key length must be less than %zu bytes\n", sizeof(fullkey) - 3);
+		return -1;
+	}
+
+	fullkey_len = snprintf(fullkey, sizeof(fullkey), "/%s/%s", family, key);
+
+	ast_mutex_lock(&ucm_dblock);
+	if (sqlite3_bind_text(ucm_get_stmt, 1, fullkey, fullkey_len, SQLITE_STATIC) != SQLITE_OK) {
+		ast_log(LOG_WARNING, "Couldn't bind key to stmt: %s\n", sqlite3_errmsg(ucm_astdb));
+		res = -1;
+	} else if (sqlite3_step(ucm_get_stmt) != SQLITE_ROW) {
+		ast_debug(1, "Unable to find key '%s' in family '%s'\n", key, family);
+		res = -1;
+	} else if (!(result = sqlite3_column_text(ucm_get_stmt, 0))) {
+		ast_log(LOG_WARNING, "Couldn't get value\n");
+		res = -1;
+	} else {
+		const char *value = (const char *) result;
+
+		if (bufferlen == -1) {
+			*buffer = ast_strdup(value);
+		} else {
+			ast_copy_string(*buffer, value, bufferlen);
+		}
+	}
+	sqlite3_reset(ucm_get_stmt);
+	ast_mutex_unlock(&ucm_dblock);
+
+	return res;
+}
+
+int ast_ucm_db_get(const char *family, const char *key, char *value, int valuelen)
+{
+	ast_assert(value != NULL);
+
+	/* Make sure we initialize */
+	value[0] = 0;
+
+	return ucm_db_get_common(family, key, &value, valuelen);
+}
+
+int ast_ucm_db_get_allocated(const char *family, const char *key, char **out)
+{
+	*out = NULL;
+
+	return ucm_db_get_common(family, key, out, -1);
+}
+
+int ast_ucm_db_del(const char *family, const char *key)
+{
+	char fullkey[MAX_DB_FIELD];
+	size_t fullkey_len;
+	int res = 0;
+
+	if (strlen(family) + strlen(key) + 2 > sizeof(fullkey) - 1) {
+		ast_log(LOG_WARNING, "Family and key length must be less than %zu bytes\n", sizeof(fullkey) - 3);
+		return -1;
+	}
+
+	fullkey_len = snprintf(fullkey, sizeof(fullkey), "/%s/%s", family, key);
+
+	ast_mutex_lock(&ucm_dblock);
+	if (sqlite3_bind_text(ucm_del_stmt, 1, fullkey, fullkey_len, SQLITE_STATIC) != SQLITE_OK) {
+		ast_log(LOG_WARNING, "Couldn't bind key to stmt: %s\n", sqlite3_errmsg(ucm_astdb));
+		res = -1;
+	} else if (sqlite3_step(ucm_del_stmt) != SQLITE_DONE) {
+		ast_debug(1, "Unable to find key '%s' in family '%s'\n", key, family);
+		res = -1;
+	}
+	sqlite3_reset(ucm_del_stmt);
+	ucm_db_sync();
+	ast_mutex_unlock(&ucm_dblock);
+
+	return res;
+}
+
+int ast_ucm_db_deltree(const char *family, const char *keytree)
+{
+	sqlite3_stmt *stmt = ucm_deltree_stmt;
+	char prefix[MAX_DB_FIELD];
+	int res = 0;
+
+	if (!ast_strlen_zero(family)) {
+		if (!ast_strlen_zero(keytree)) {
+			/* Family and key tree */
+			snprintf(prefix, sizeof(prefix), "/%s/%s", family, keytree);
+		} else {
+			/* Family only */
+			snprintf(prefix, sizeof(prefix), "/%s", family);
+		}
+	} else {
+		prefix[0] = '\0';
+		stmt = ucm_deltree_all_stmt;
+	}
+
+	ast_mutex_lock(&ucm_dblock);
+	if (!ast_strlen_zero(prefix) && (sqlite3_bind_text(stmt, 1, prefix, -1, SQLITE_STATIC) != SQLITE_OK)) {
+		ast_log(LOG_WARNING, "Could bind %s to stmt: %s\n", prefix, sqlite3_errmsg(ucm_astdb));
+		res = -1;
+	} else if (sqlite3_step(stmt) != SQLITE_DONE) {
+		ast_log(LOG_WARNING, "Couldn't execute stmt: %s\n", sqlite3_errmsg(ucm_astdb));
+		res = -1;
+	}
+	res = sqlite3_changes(ucm_astdb);
+	sqlite3_reset(stmt);
+	ucm_db_sync();
+	ast_mutex_unlock(&ucm_dblock);
+
+	return res;
+}
+
+struct ast_db_entry *ast_ucm_db_gettree(const char *family, const char *keytree)
+{
+	char prefix[MAX_DB_FIELD];
+	sqlite3_stmt *stmt = ucm_gettree_stmt;
+	struct ast_db_entry *cur, *last = NULL, *ret = NULL;
+
+	if (!ast_strlen_zero(family)) {
+		if (!ast_strlen_zero(keytree)) {
+			/* Family and key tree */
+			snprintf(prefix, sizeof(prefix), "/%s/%s", family, keytree);
+		} else {
+			/* Family only */
+			snprintf(prefix, sizeof(prefix), "/%s", family);
+		}
+	} else {
+		prefix[0] = '\0';
+		stmt = ucm_gettree_all_stmt;
+	}
+
+	ast_mutex_lock(&ucm_dblock);
+	if (!ast_strlen_zero(prefix) && (sqlite3_bind_text(stmt, 1, prefix, -1, SQLITE_STATIC) != SQLITE_OK)) {
+		ast_log(LOG_WARNING, "Could bind %s to stmt: %s\n", prefix, sqlite3_errmsg(ucm_astdb));
+		sqlite3_reset(stmt);
+		ast_mutex_unlock(&ucm_dblock);
+		return NULL;
+	}
+
+	while (sqlite3_step(stmt) == SQLITE_ROW) {
+		const char *key_s, *value_s;
+		if (!(key_s = (const char *) sqlite3_column_text(stmt, 0))) {
+			break;
+		}
+		if (!(value_s = (const char *) sqlite3_column_text(stmt, 1))) {
+			break;
+		}
+		if (!(cur = ast_malloc(sizeof(*cur) + strlen(key_s) + strlen(value_s) + 2))) {
+			break;
+		}
+		cur->next = NULL;
+		cur->key = cur->data + strlen(value_s) + 1;
+		strcpy(cur->data, value_s);
+		strcpy(cur->key, key_s);
+		if (last) {
+			last->next = cur;
+		} else {
+			ret = cur;
+		}
+		last = cur;
+	}
+	sqlite3_reset(stmt);
+	ast_mutex_unlock(&ucm_dblock);
+
+	return ret;
+}
+
+/* Add by bfdu for reduce load pjsip time, 2017.03.09 */
+void ast_db_gettree_for_pjsip_load(void)
+{
+	if (!g_ast_db_ha_enable) {
+		ast_log(LOG_DEBUG, "ast_db_gettree_for_pjsip_load HA is not enable\n");
+		return;
+	}
+	db_entry_for_pjsip_load = ast_db_gettree("registrar/contact", NULL);
+	return;
+}
+
+void ast_db_freetree_for_pjsip_load(void)
+{
+	if (!g_ast_db_ha_enable) {
+		ast_log(LOG_DEBUG, "ast_db_freetree_for_pjsip_load HA is not enable\n");
+		return;
+	}
+	ast_db_freetree(db_entry_for_pjsip_load);
+	db_entry_for_pjsip_load = NULL;
+	return;
+}
+
+void ast_db_set_ha_enable_for_pjsip_load(void)
+{
+	FILE *ha_fp = NULL;
+	char on_buf[64] = { 0 };
+	    
+	/* Get the ha_enable */
+	ha_fp = popen("nvram get haon", "r");
+	if (ha_fp == NULL)
+	{
+		ast_log(LOG_ERROR, "ast_db haon Read error\n");
+		return;
+	}
+	while (ha_fp != NULL && (!feof(ha_fp)) && (fgets(on_buf, sizeof(on_buf) - 1, ha_fp) != NULL)) 
+	{
+		ast_log(LOG_DEBUG, "ast_db haon Read: [%s]\n", on_buf);
+	}
+	g_ast_db_ha_enable = atoi(on_buf);
+
+	ast_log(LOG_DEBUG, "ast_db ha_enable is %d\n", g_ast_db_ha_enable);
+
+	pclose(ha_fp);
+	ha_fp = NULL;
+	return;
+}
+/* End by bfdu */
+#endif
+
 
 /*! \internal
  * \brief Clean up the prepared SQLite3 statement
@@ -554,7 +1062,61 @@ struct ast_db_entry *ast_db_gettree(const char *family, const char *keytree)
 	}
 
 	ast_mutex_lock(&dblock);
+#ifdef GRANDSTREAM_NETWORKS
+		int entry_found = 0;
+		if (g_ast_db_ha_enable && db_entry_for_pjsip_load) {	
+			struct ast_db_entry *cur = db_entry_for_pjsip_load;
+			struct ast_db_entry *ret_entry = NULL;
+			struct ast_db_entry *insert_entry = NULL;
+			struct ast_db_entry *pre = NULL;
+			struct ast_db_entry *cur_del = NULL;
+			while (cur) {
+				const char *value_s = (const char *)(cur->data);
+				int len = strlen(value_s);
+				if (!strncmp(cur->key, prefix, strlen(prefix) - 2)) {
+					if (!(insert_entry = ast_malloc(sizeof(*cur) + strlen(cur->key) + len + 2))) {
+						break;
+					}
+					insert_entry->next = NULL;
+					insert_entry->key = insert_entry->data + len + 1;
+					strcpy(insert_entry->data, value_s);
+					strcpy(insert_entry->key, cur->key);
+					if (ret_entry) {
+						while (ret_entry->next) {
+							ret_entry = ret_entry->next;
+						}
+						ret_entry->next = insert_entry;
+					} else {
+						ret_entry = insert_entry;
+					}
+					entry_found = 1;
+	
+					/* delete the matched entery to reduce the list count, so reduce the time to match for next query */
+					cur_del = cur;
+					if (cur_del == db_entry_for_pjsip_load) {
+						db_entry_for_pjsip_load = cur->next;
+					} else {
+						if (pre) {
+							pre->next = cur->next;
+						}
+					}
+					cur = cur->next;
+					ast_free(cur_del);
+					cur_del = NULL;
+				} else {
+					pre = cur;
+					cur = cur->next;
+				}
+			}
+	
+			ret = ret_entry;
+		}
+	
+		if (!entry_found) {
+	if (res && !ast_strlen_zero(prefix) && (sqlite3_bind_text(stmt, 1, prefix, res, SQLITE_STATIC) != SQLITE_OK)) {
+#else
 	if (res && (sqlite3_bind_text(stmt, 1, prefix, res, SQLITE_STATIC) != SQLITE_OK)) {
+#endif
 		ast_log(LOG_WARNING, "Could not bind %s to stmt: %s\n", prefix, sqlite3_errmsg(astdb));
 		sqlite3_reset(stmt);
 		ast_mutex_unlock(&dblock);
@@ -563,6 +1125,9 @@ struct ast_db_entry *ast_db_gettree(const char *family, const char *keytree)
 
 	ret = db_gettree_common(stmt);
 	sqlite3_reset(stmt);
+#ifdef GRANDSTREAM_NETWORKS
+	}
+#endif
 	ast_mutex_unlock(&dblock);
 
 	return ret;
@@ -870,6 +1435,262 @@ static char *handle_cli_database_query(struct ast_cli_entry *e, int cmd, struct 
 	return CLI_SUCCESS;
 }
 
+#ifdef GRANDSTREAM_NETWORKS
+static char *handle_cli_ucm_database_put(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
+{
+	int res;
+
+	switch (cmd) {
+	case CLI_INIT:
+		e->command = "ucm_database put";
+		e->usage =
+			"Usage: ucm_database put <family> <key> <value>\n"
+			"       Adds or updates an entry in the Asterisk ucm_database for\n"
+			"       a given family, key, and value.\n";
+		return NULL;
+	case CLI_GENERATE:
+		return NULL;
+	}
+
+	if (a->argc != 5)
+		return CLI_SHOWUSAGE;
+	res = ast_ucm_db_put(a->argv[2], a->argv[3], a->argv[4], 1);
+	if (res)  {
+		ast_cli(a->fd, "Failed to update entry\n");
+	} else {
+		ast_cli(a->fd, "Updated database successfully\n");
+	}
+	return CLI_SUCCESS;
+}
+
+static char *handle_cli_ucm_database_get(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
+{
+	int res;
+	char tmp[MAX_DB_FIELD];
+
+	switch (cmd) {
+	case CLI_INIT:
+		e->command = "ucm_database get";
+		e->usage =
+			"Usage: ucm_database get <family> <key>\n"
+			"       Retrieves an entry in the Asterisk ucm_database for a given\n"
+			"       family and key.\n";
+		return NULL;
+	case CLI_GENERATE:
+		return NULL;
+	}
+
+	if (a->argc != 4)
+		return CLI_SHOWUSAGE;
+	res = ast_ucm_db_get(a->argv[2], a->argv[3], tmp, sizeof(tmp));
+	if (res) {
+		ast_cli(a->fd, "Database entry not found.\n");
+	} else {
+		ast_cli(a->fd, "Value: %s\n", tmp);
+	}
+	return CLI_SUCCESS;
+}
+
+static char *handle_cli_ucm_database_del(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
+{
+	int res;
+
+	switch (cmd) {
+	case CLI_INIT:
+		e->command = "ucm_database del";
+		e->usage =
+			"Usage: ucm_database del <family> <key>\n"
+			"       Deletes an entry in the Asterisk ucm_database for a given\n"
+			"       family and key.\n";
+		return NULL;
+	case CLI_GENERATE:
+		return NULL;
+	}
+
+	if (a->argc != 4)
+		return CLI_SHOWUSAGE;
+	res = ast_ucm_db_del(a->argv[2], a->argv[3]);
+	if (res) {
+		ast_cli(a->fd, "Database entry does not exist.\n");
+	} else {
+		ast_cli(a->fd, "Database entry removed.\n");
+	}
+	return CLI_SUCCESS;
+}
+
+static char *handle_cli_ucm_database_deltree(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
+{
+	int num_deleted;
+
+	switch (cmd) {
+	case CLI_INIT:
+		e->command = "ucm_database deltree";
+		e->usage =
+			"Usage: ucm_database deltree <family> [keytree]\n"
+			"   OR: ucm_database deltree <family>[/keytree]\n"
+			"       Deletes a family or specific keytree within a family\n"
+			"       in the Asterisk ucm_database.  The two arguments may be\n"
+			"       separated by either a space or a slash.\n";
+		return NULL;
+	case CLI_GENERATE:
+		return NULL;
+	}
+
+	if ((a->argc < 3) || (a->argc > 4))
+		return CLI_SHOWUSAGE;
+	if (a->argc == 4) {
+		num_deleted = ast_ucm_db_deltree(a->argv[2], a->argv[3]);
+	} else {
+		num_deleted = ast_ucm_db_deltree(a->argv[2], NULL);
+	}
+	if (num_deleted < 0) {
+		ast_cli(a->fd, "Database unavailable.\n");
+	} else if (num_deleted == 0) {
+		ast_cli(a->fd, "Database entries do not exist.\n");
+	} else {
+		ast_cli(a->fd, "%d ucm_database entries removed.\n",num_deleted);
+	}
+	return CLI_SUCCESS;
+}
+
+static char *handle_cli_ucm_database_show(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
+{
+	char prefix[MAX_DB_FIELD];
+	int counter = 0;
+	sqlite3_stmt *stmt = ucm_gettree_stmt;
+
+	switch (cmd) {
+	case CLI_INIT:
+		e->command = "ucm_database show";
+		e->usage =
+			"Usage: ucm_database show [family [keytree]]\n"
+			"   OR: ucm_database show [family[/keytree]]\n"
+			"       Shows Asterisk ucm_database contents, optionally restricted\n"
+			"       to a given family, or family and keytree. The two arguments\n"
+			"       may be separated either by a space or by a slash.\n";
+		return NULL;
+	case CLI_GENERATE:
+		return NULL;
+	}
+
+	if (a->argc == 4) {
+		/* Family and key tree */
+		snprintf(prefix, sizeof(prefix), "/%s/%s", a->argv[2], a->argv[3]);
+	} else if (a->argc == 3) {
+		/* Family only */
+		snprintf(prefix, sizeof(prefix), "/%s", a->argv[2]);
+	} else if (a->argc == 2) {
+		/* Neither */
+		prefix[0] = '\0';
+		stmt = ucm_gettree_all_stmt;
+
+	} else {
+		return CLI_SHOWUSAGE;
+	}
+
+	ast_mutex_lock(&ucm_dblock);
+	if (!ast_strlen_zero(prefix) && (sqlite3_bind_text(stmt, 1, prefix, -1, SQLITE_STATIC) != SQLITE_OK)) {
+		ast_log(LOG_WARNING, "Could bind %s to stmt: %s\n", prefix, sqlite3_errmsg(ucm_astdb));
+		sqlite3_reset(stmt);
+		ast_mutex_unlock(&ucm_dblock);
+		return NULL;
+	}
+
+	while (sqlite3_step(stmt) == SQLITE_ROW) {
+		const char *key_s, *value_s;
+		if (!(key_s = (const char *) sqlite3_column_text(stmt, 0))) {
+			ast_log(LOG_WARNING, "Skipping invalid key!\n");
+			continue;
+		}
+		if (!(value_s = (const char *) sqlite3_column_text(stmt, 1))) {
+			ast_log(LOG_WARNING, "Skipping invalid value!\n");
+			continue;
+		}
+		++counter;
+		ast_cli(a->fd, "%-50s: %-25s\n", key_s, value_s);
+	}
+
+	sqlite3_reset(stmt);
+	ast_mutex_unlock(&ucm_dblock);
+
+	ast_cli(a->fd, "%d results found.\n", counter);
+	return CLI_SUCCESS;
+}
+
+static char *handle_cli_ucm_database_showkey(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
+{
+	int counter = 0;
+
+	switch (cmd) {
+	case CLI_INIT:
+		e->command = "ucm_database showkey";
+		e->usage =
+			"Usage: ucm_database showkey <keytree>\n"
+			"       Shows Asterisk ucm_database contents, restricted to a given key.\n";
+		return NULL;
+	case CLI_GENERATE:
+		return NULL;
+	}
+
+	if (a->argc != 3) {
+		return CLI_SHOWUSAGE;
+	}
+
+	ast_mutex_lock(&ucm_dblock);
+	if (!ast_strlen_zero(a->argv[2]) && (sqlite3_bind_text(ucm_showkey_stmt, 1, a->argv[2], -1, SQLITE_STATIC) != SQLITE_OK)) {
+		ast_log(LOG_WARNING, "Could bind %s to stmt: %s\n", a->argv[2], sqlite3_errmsg(ucm_astdb));
+		sqlite3_reset(ucm_showkey_stmt);
+		ast_mutex_unlock(&ucm_dblock);
+		return NULL;
+	}
+
+	while (sqlite3_step(ucm_showkey_stmt) == SQLITE_ROW) {
+		const char *key_s, *value_s;
+		if (!(key_s = (const char *) sqlite3_column_text(ucm_showkey_stmt, 0))) {
+			break;
+		}
+		if (!(value_s = (const char *) sqlite3_column_text(ucm_showkey_stmt, 1))) {
+			break;
+		}
+		++counter;
+		ast_cli(a->fd, "%-50s: %-25s\n", key_s, value_s);
+	}
+	sqlite3_reset(ucm_showkey_stmt);
+	ast_mutex_unlock(&ucm_dblock);
+
+	ast_cli(a->fd, "%d results found.\n", counter);
+	return CLI_SUCCESS;
+}
+
+static char *handle_cli_ucm_database_query(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
+{
+
+	switch (cmd) {
+	case CLI_INIT:
+		e->command = "ucm_database query";
+		e->usage =
+			"Usage: ucm_database query \"<SQL Statement>\"\n"
+			"       Run a user-specified SQL query on the ucm_database. Be careful.\n";
+		return NULL;
+	case CLI_GENERATE:
+		return NULL;
+	}
+
+	if (a->argc != 3) {
+		return CLI_SHOWUSAGE;
+	}
+
+	ast_mutex_lock(&ucm_dblock);
+	ucm_db_execute_sql(a->argv[2], display_results, a);
+	ucm_db_sync(); /* Go ahead and sync the db in case they write */
+	ast_mutex_unlock(&ucm_dblock);
+
+	return CLI_SUCCESS;
+}
+
+#endif
+
+
 static struct ast_cli_entry cli_database[] = {
 	AST_CLI_DEFINE(handle_cli_database_show,    "Shows database contents"),
 	AST_CLI_DEFINE(handle_cli_database_showkey, "Shows database contents"),
@@ -878,6 +1699,15 @@ static struct ast_cli_entry cli_database[] = {
 	AST_CLI_DEFINE(handle_cli_database_del,     "Removes database key/value"),
 	AST_CLI_DEFINE(handle_cli_database_deltree, "Removes database keytree/values"),
 	AST_CLI_DEFINE(handle_cli_database_query,   "Run a user-specified query on the astdb"),
+#ifdef GRANDSTREAM_NETWORKS
+	AST_CLI_DEFINE(handle_cli_ucm_database_show,	"Shows ucm_database contents"),
+	AST_CLI_DEFINE(handle_cli_ucm_database_showkey, "Shows ucm_database contents"),
+	AST_CLI_DEFINE(handle_cli_ucm_database_get, 	"Gets ucm_database value"),
+	AST_CLI_DEFINE(handle_cli_ucm_database_put, 	"Adds/updates ucm_database value"),
+	AST_CLI_DEFINE(handle_cli_ucm_database_del, 	"Removes ucm_database key/value"),
+	AST_CLI_DEFINE(handle_cli_ucm_database_deltree, "Removes ucm_database keytree/values"),
+	AST_CLI_DEFINE(handle_cli_ucm_database_query,	"Run a user-specified query on the ucm_astdb"),
+#endif
 };
 
 static int manager_dbput(struct mansession *s, const struct message *m)
@@ -904,6 +1734,62 @@ static int manager_dbput(struct mansession *s, const struct message *m)
 	}
 	return 0;
 }
+
+#ifdef GRANDSTREAM_NETWORKS
+static int manager_dbputtree(struct mansession *s, const struct message *m)
+{
+	const char *family = astman_get_header(m, "Family");
+	const char *keys = astman_get_header(m, "Keys");
+	const char *vals = astman_get_header(m, "Vals");
+	const char *key = NULL;
+	const char *val = NULL;
+	char *key_saved = NULL;
+	char *val_saved = NULL;
+	int res;
+
+	if (ast_strlen_zero(family)) {
+		astman_send_error(s, m, "No family specified");
+		return 0;
+	}
+	if (ast_strlen_zero(keys)) {
+		astman_send_error(s, m, "No key specified");
+		return 0;
+	}
+
+	key = (const char *)strtok_r((char *)keys, ";,;", &key_saved);
+	val = (const char *)strtok_r((char *)vals, ";,;", &val_saved);
+	while ( key != NULL ) {
+		if (val == NULL) {
+			val = "";
+		} else if (strcasecmp(val, "~none~") == 0) {
+			/*the val is maked as empty*/
+			val = "";
+		}
+
+		ast_log(LOG_DEBUG, "manager_dbputtree while key is [%s] val is [%s]\n", key, val);
+
+		if (!ast_strlen_zero(key)) {
+			res = ast_db_put(family, key, S_OR(val, ""));
+			if (res) {
+			/*TODO: Need a rollback !*/
+			break;
+			}
+		}
+		key = strtok_r(NULL, ";,;", &key_saved);
+		val = strtok_r(NULL, ";,;", &val_saved);
+	}
+
+	if (res) {
+		/*TODO: Need a rollback !*/
+		astman_send_error(s, m, "Failed to update entry");
+	} else {
+		astman_send_ack(s, m, "Updated database successfully");
+	}
+
+	return 0;
+}
+#endif
+
 
 static int manager_dbget(struct mansession *s, const struct message *m)
 {
@@ -1051,6 +1937,177 @@ static void *db_sync_thread(void *data)
 	return NULL;
 }
 
+#ifdef GRANDSTREAM_NETWORKS
+static int manager_ucm_dbput(struct mansession *s, const struct message *m)
+{
+	const char *family = astman_get_header(m, "Family");
+	const char *key = astman_get_header(m, "Key");
+	const char *val = astman_get_header(m, "Val");
+	int res;
+
+	if (ast_strlen_zero(family)) {
+		astman_send_error(s, m, "No family specified");
+		return 0;
+	}
+	if (ast_strlen_zero(key)) {
+		astman_send_error(s, m, "No key specified");
+		return 0;
+	}
+
+	res = ast_ucm_db_put(family, key, S_OR(val, ""),1);
+	if (res) {
+		astman_send_error(s, m, "Failed to update entry");
+	} else {
+		astman_send_ack(s, m, "Updated database successfully");
+	}
+	return 0;
+}
+
+static int manager_ucm_dbputtree(struct mansession *s, const struct message *m)
+{
+	const char *family = astman_get_header(m, "Family");
+	const char *keys = astman_get_header(m, "Keys");
+	const char *vals = astman_get_header(m, "Vals");
+	const char *key = NULL;
+	const char *val = NULL;
+	char *key_saved = NULL;
+	char *val_saved = NULL;
+	int res;
+
+	if (ast_strlen_zero(family)) {
+		astman_send_error(s, m, "No family specified");
+		return 0;
+	}
+	if (ast_strlen_zero(keys)) {
+		astman_send_error(s, m, "No key specified");
+		return 0;
+	}
+
+	key = (const char *)strtok_r((char *)keys, ";,;", &key_saved);
+	val = (const char *)strtok_r((char *)vals, ";,;", &val_saved);
+	while ( key != NULL ) {
+		if (val == NULL) {
+			val = "";
+		} else if (strcasecmp(val, "~none~") == 0) {
+			/*the val is maked as empty*/
+			val = "";
+		}
+
+		ast_log(LOG_DEBUG, "manager_dbputtree while key is [%s] val is [%s]\n", key, val);
+
+		if (!ast_strlen_zero(key)) {
+			res = ast_ucm_db_put(family, key, S_OR(val, ""),0);
+			if (res) {
+				/*TODO: Need a rollback !*/
+				break;
+			}
+		}
+		key = strtok_r(NULL, ";,;", &key_saved);
+		val = strtok_r(NULL, ";,;", &val_saved);
+	}
+	ast_mutex_lock(&ucm_dblock);
+	ucm_db_sync();
+	ast_mutex_unlock(&ucm_dblock);
+ 
+	if (res) {
+		/*TODO: Need a rollback !*/
+		astman_send_error(s, m, "Failed to update entry");
+	} else {
+		astman_send_ack(s, m, "Updated database successfully");
+	}
+
+	return 0;
+}
+
+static int manager_ucm_dbdeltree(struct mansession *s, const struct message *m)
+{
+	const char *family = astman_get_header(m, "Family");
+	const char *key = astman_get_header(m, "Key");
+	int num_deleted;
+
+	if (ast_strlen_zero(family)) {
+		astman_send_error(s, m, "No family specified.");
+		return 0;
+	}
+
+	if (!ast_strlen_zero(key)) {
+		num_deleted = ast_ucm_db_deltree(family, key);
+	} else {
+		num_deleted = ast_ucm_db_deltree(family, NULL);
+	}
+
+	if (num_deleted < 0) {
+		astman_send_error(s, m, "Database unavailable");
+	} else if (num_deleted == 0) {
+		astman_send_error(s, m, "Database entry not found");
+	} else {
+		astman_send_ack(s, m, "Key tree deleted successfully");
+	}
+
+	return 0;
+}
+static int manager_ucm_dbdelall(struct mansession *s, const struct message *m)
+{
+	ast_ucm_db_delall();
+
+	astman_send_ack(s, m, "deleted successfully");
+
+	return 0;
+}
+/*!
+ * \internal
+ * \brief Signal the astdb sync thread to do its thing.
+ *
+ * \note dblock is assumed to be held when calling this function.
+ */
+static void ucm_db_sync(void)
+{
+	ucm_dosync = 1;
+	ast_cond_signal(&ucm_dbcond);
+}
+
+/*!
+ * \internal
+ * \brief astdb sync thread
+ *
+ * This thread is in charge of syncing astdb to disk after a change.
+ * By pushing it off to this thread to take care of, this I/O bound operation
+ * will not block other threads from performing other critical processing.
+ * If changes happen rapidly, this thread will also ensure that the sync
+ * operations are rate limited.
+ */
+static void *ucm_db_sync_thread(void *data)
+{
+	ast_mutex_lock(&ucm_dblock);
+	ast_ucm_db_begin_transaction();
+	for (;;) {
+		/* If dosync is set, db_sync() was called during sleep(1), 
+		 * and the pending transaction should be committed. 
+		 * Otherwise, block until db_sync() is called.
+		 */
+		while (!ucm_dosync) {
+			ast_cond_wait(&ucm_dbcond, &ucm_dblock);
+		}
+		ucm_dosync = 0;
+		if (ast_ucm_db_commit_transaction()) {
+			ast_ucm_db_rollback_transaction();
+		}
+		if (ucm_doexit) {
+			ast_mutex_unlock(&ucm_dblock);
+			break;
+		}
+		ast_ucm_db_begin_transaction();
+		ast_mutex_unlock(&ucm_dblock);
+		sleep(1);
+		ast_mutex_lock(&ucm_dblock);
+	}
+
+	return NULL;
+}
+
+#endif
+
+
 /*!
  * \internal
  * \brief Clean up resources on Asterisk shutdown
@@ -1060,8 +2117,32 @@ static void astdb_atexit(void)
 	ast_cli_unregister_multiple(cli_database, ARRAY_LEN(cli_database));
 	ast_manager_unregister("DBGet");
 	ast_manager_unregister("DBPut");
+#ifdef GRANDSTREAM_NETWORKS	
+	ast_manager_unregister("DBPutTree");
+#endif
 	ast_manager_unregister("DBDel");
 	ast_manager_unregister("DBDelTree");
+#ifdef GRANDSTREAM_NETWORKS	
+	ast_manager_unregister("UCMDBPut");
+	ast_manager_unregister("UCMDBPutTree");
+	ast_manager_unregister("UCMDBDelTree");
+
+	ast_manager_unregister("UCMDBDelAll");
+	/* Set doexit to 1 to kill thread. db_sync must be called with
+	 * mutex held. */
+	ast_mutex_lock(&ucm_dblock);
+	ucm_doexit = 1;
+	ucm_db_sync();
+	ast_mutex_unlock(&ucm_dblock);
+
+	pthread_join(ucm_syncthread, NULL);
+	ast_mutex_lock(&ucm_dblock);
+	ucm_clean_statements();
+	if (sqlite3_close(ucm_astdb) == SQLITE_OK) {
+		ucm_astdb = NULL;
+	}
+	ast_mutex_unlock(&ucm_dblock);
+#endif
 
 	/* Set doexit to 1 to kill thread. db_sync must be called with
 	 * mutex held. */
@@ -1085,6 +2166,16 @@ int astdb_init(void)
 		return -1;
 	}
 
+#ifdef GRANDSTREAM_NETWORKS
+	if (ucm_db_init()) {
+		return -1;
+	}
+	ast_cond_init(&ucm_dbcond, NULL);
+	if (ast_pthread_create_background(&ucm_syncthread, NULL, ucm_db_sync_thread, NULL)) {
+		return -1;
+	}
+#endif
+
 	ast_cond_init(&dbcond, NULL);
 	if (ast_pthread_create_background(&syncthread, NULL, db_sync_thread, NULL)) {
 		return -1;
@@ -1094,7 +2185,17 @@ int astdb_init(void)
 	ast_cli_register_multiple(cli_database, ARRAY_LEN(cli_database));
 	ast_manager_register_xml_core("DBGet", EVENT_FLAG_SYSTEM | EVENT_FLAG_REPORTING, manager_dbget);
 	ast_manager_register_xml_core("DBPut", EVENT_FLAG_SYSTEM, manager_dbput);
+#ifdef GRANDSTREAM_NETWORKS
+	ast_manager_register_xml_core("DBPutTree", EVENT_FLAG_SYSTEM, manager_dbputtree);
+#endif
 	ast_manager_register_xml_core("DBDel", EVENT_FLAG_SYSTEM, manager_dbdel);
 	ast_manager_register_xml_core("DBDelTree", EVENT_FLAG_SYSTEM, manager_dbdeltree);
+#ifdef GRANDSTREAM_NETWORKS
+	ast_manager_register_xml_core("UCMDBDelTree", EVENT_FLAG_SYSTEM, manager_ucm_dbdeltree);
+	ast_manager_register_xml_core("UCMDBPut", EVENT_FLAG_SYSTEM, manager_ucm_dbput);
+	ast_manager_register_xml_core("UCMDBPutTree", EVENT_FLAG_SYSTEM, manager_ucm_dbputtree);
+	ast_manager_register_xml_core("UCMDBDelAll", EVENT_FLAG_SYSTEM, manager_ucm_dbdelall);
+#endif
+
 	return 0;
 }

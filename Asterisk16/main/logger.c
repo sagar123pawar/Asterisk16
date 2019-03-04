@@ -255,7 +255,7 @@ AST_THREADSTORAGE(log_buf);
 
 #ifdef GRANDSTREAM_NETWORKS
 static int ast_log_index = 1;
-int ast_log_indexs[65535] = {0};
+static int ast_log_indexs[65535] = {0};
 
 #define LOGGER_MAX_BUCKETS 53
 struct ao2_container *log_container = NULL;

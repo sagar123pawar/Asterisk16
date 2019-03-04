@@ -300,6 +300,10 @@ const char *ast_fax_session_operation_str(struct ast_fax_session *s);
  *
  * ast_fax_log(LOG_DEBUG, msg);
  */
+#ifdef GRANDSTREAM_NETWORKS
+void ast_fax_log(int level, const char *msg);
+#else
 void ast_fax_log(int level, const char *file, const int line, const char *function, const char *msg);
+#endif
 
 #endif

@@ -95,6 +95,64 @@ struct ast_db_entry *ast_db_gettree_by_prefix(const char *family, const char *ke
 
 /*! \brief Free structure created by ast_db_gettree() */
 void ast_db_freetree(struct ast_db_entry *entry);
+#ifdef GRANDSTREAM_NETWORKS
+ /*! \brief Get key value specified by family/key */
+int ast_ucm_db_get(const char *family, const char *key, char *value, int valuelen);
+
+/*!
+ * \brief Get key value specified by family/key as a heap allocated string.
+ *
+ * \details
+ * Given a \a family and \a key, sets \a out to a pointer to a heap
+ * allocated string.  In the event of an error, \a out will be set to
+ * NULL.  The string must be freed by calling ast_free().
+ *
+ * \retval -1 An error occurred
+ * \retval 0 Success
+ */
+int ast_ucm_db_get_allocated(const char *family, const char *key, char **out);
+
+/*! \brief Store value addressed by family/key */
+int ast_ucm_db_put(const char *family, const char *key, const char *value ,int iscommit);
+
+/*! \brief Delete entry in astdb */
+int ast_ucm_db_del(const char *family, const char *key);
+
+/*!
+ * \brief Delete one or more entries in astdb
+ *
+ * \details
+ * If both parameters are NULL, the entire database will be purged.  If
+ * only keytree is NULL, all entries within the family will be purged.
+ * It is an error for keytree to have a value when family is NULL.
+ *
+ * \retval -1 An error occurred
+ * \retval >= 0 Number of records deleted
+ */
+int ast_ucm_db_deltree(const char *family, const char *keytree);
+
+/*!
+ * \brief Get a list of values within the astdb tree
+ *
+ * \details
+ * If family is specified, only those keys will be returned.  If keytree
+ * is specified, subkeys are expected to exist (separated from the key with
+ * a slash).  If subkeys do not exist and keytree is specified, the tree will
+ * consist of either a single entry or NULL will be returned.
+ *
+ * Resulting tree should be freed by passing the return value to ast_db_freetree()
+ * when usage is concluded.
+ */
+struct ast_db_entry *ast_ucm_db_gettree(const char *family, const char *keytree);
+
+/*! \brief Free structure created by ast_db_gettree() */
+void ast_ucm_db_freetree(struct ast_db_entry *entry);
+
+/* Add by bfdu for reduce load pjsip time, 2017.03.09 */
+void ast_db_gettree_for_pjsip_load(void);
+void ast_db_freetree_for_pjsip_load(void);
+void ast_db_set_ha_enable_for_pjsip_load(void);
+#endif
 
 #if defined(__cplusplus) || defined(c_plusplus)
 }
