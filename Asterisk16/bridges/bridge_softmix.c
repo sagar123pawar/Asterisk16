@@ -39,6 +39,10 @@
 #include "asterisk/message.h"
 #include "bridge_softmix/include/bridge_softmix_internal.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("Bridge");
+#endif
+
 /*! The minimum sample rate of the bridge. */
 #define SOFTMIX_MIN_SAMPLE_RATE 8000	/* 8 kHz sample rate */
 

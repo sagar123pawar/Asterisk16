@@ -30,6 +30,10 @@
 #include "asterisk/manager.h"
 #include "asterisk/stasis_message_router.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("Bridge");
+#endif
+
 /*! \brief Message router for cached bridge state snapshot updates */
 static struct stasis_message_router *bridge_state_router;
 

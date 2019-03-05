@@ -276,13 +276,14 @@ static int ast_logger_db_insert(void)
 	struct ast_log_modules *mod = NULL;
 	char sql[256] = {0};
 	char *zerrmsg = NULL;
+	int status = 0;
 
 	ao2_lock(log_container);
 	iter = ao2_iterator_init(log_container, 0);
 	while ((mod = ao2_t_iterator_next(&iter, "Iterate through queues"))) {
 		snprintf(sql, sizeof(sql) - 1, "REPLACE INTO logger(key, value) values ('%s', '%d')", mod->modname, ast_log_indexs[mod->index]);
-		sqlite3_exec(logger_db, sql, NULL, NULL, &zerrmsg);
-		if (zerrmsg) {
+		status = sqlite3_exec(logger_db, sql, NULL, NULL, &zerrmsg);
+		if (SQLITE_OK != status) {
 			sqlite3_free(zerrmsg);
 		}
 		ao2_ref(mod, -1);
@@ -301,15 +302,16 @@ static int ast_logger_db_select(void)
 	int nrow = 0, ncolumn = 0;
 	struct ast_log_modules *mod = NULL;
 	struct ao2_iterator iter;
+	int status = 0;
 
 	ao2_lock(log_container);
 	iter = ao2_iterator_init(log_container, 0);
 	while ((mod = ao2_t_iterator_next(&iter, "Iterate through queues"))) {
 		snprintf(sql, sizeof(sql) - 1, "SELECT value FROM logger WHERE key = '%s'", mod->modname);
-		sqlite3_get_table(logger_db, sql, &result, &nrow, &ncolumn, &zerrmsg);
-		if (zerrmsg) {
+		status = sqlite3_get_table(logger_db, sql, &result, &nrow, &ncolumn, &zerrmsg);
+		if (SQLITE_OK != status) {
 			sqlite3_free(zerrmsg);
-		} else if ('\0' != result[1]) {
+		} else if (nrow > 0 && ncolumn > 0 && '\0' != result[1]) {
 			ast_log_indexs[mod->index] = atoi(result[1]);
 		}
 		ao2_ref(mod, -1);
@@ -322,23 +324,23 @@ static int ast_logger_db_select(void)
 
 static int ast_logger_db_init(void)
 {
-	int len = 0;
+	int status = 0;
 	char logger_dbname[512] = {0};
 	char *zerrmsg = NULL;
 
 	snprintf(logger_dbname, sizeof(logger_dbname) - 1, "%s_logger.sqlite3", ast_config_AST_DB);
 
 	if (!logger_db) {
-		len = sqlite3_open(logger_dbname, &logger_db);
-		if (len) {
+		status = sqlite3_open(logger_dbname, &logger_db);
+		if (SQLITE_OK != status) {
 			ast_log(LOG_ERROR, "Can't open database: %s\n", sqlite3_errmsg(logger_db));
 			sqlite3_close(logger_db);
 			logger_db = NULL;
 			return - 1;
 		}
 
-		sqlite3_exec(logger_db, logger_sql, NULL, NULL, &zerrmsg);
-		if (zerrmsg) {
+		status = sqlite3_exec(logger_db, logger_sql, NULL, NULL, &zerrmsg);
+		if (SQLITE_OK != status) {
 			sqlite3_free(zerrmsg);
 		}
 	}
@@ -1540,6 +1542,7 @@ static char *handle_logger_save_switch(struct ast_cli_entry *e, int cmd, struct 
 	}
 
 	ast_logger_db_insert();
+	ast_cli(a->fd, "Logger save switch successfully.\n");
 
 	return CLI_SUCCESS;
 }
@@ -1580,13 +1583,77 @@ static char *handle_logger_set_level(struct ast_cli_entry *e, int cmd, struct as
 	}
 
 	if (!strcasecmp(a->argv[6], "off")) {
-		ast_log_indexs[mod->index] = 0;
+		int index;
+
+		if (!strcasecmp(a->argv[3], "ALL")) {
+			if (!strcasecmp(a->argv[5], "ALL")) {
+				for (index = 0; index <= ast_log_index && index < 65535; index++) {
+					ast_log_indexs[index] = 0;
+				}
+			} else if (!strcasecmp(a->argv[5], "DEBUG")) {
+				for (index = 0; index <= ast_log_index && index < 65535; index++) {
+					ast_log_indexs[index] &= ~AST_DEBUG_LOG_ENUM;
+				}
+			} else if (!strcasecmp(a->argv[5], "NOTICE")) {
+				for (index = 0; index <= ast_log_index && index < 65535; index++) {
+					ast_log_indexs[index] &= ~AST_NOTICE_LOG_ENUM;
+				}
+			} else if (!strcasecmp(a->argv[5], "WARNING")) {
+				for (index = 0; index <= ast_log_index && index < 65535; index++) {
+					ast_log_indexs[index] &= ~AST_WARNING_LOG_ENUM;
+				}
+			} else if (!strcasecmp(a->argv[5], "ERROR")) {
+				for (index = 0; index <= ast_log_index && index < 65535; index++) {
+					ast_log_indexs[index] &= ~AST_ERROR_LOG_ENUM;
+				}
+			} else if (!strcasecmp(a->argv[5], "VERBOSE")) {
+				for (index = 0; index <= ast_log_index && index < 65535; index++) {
+					ast_log_indexs[index] &= ~AST_VERBOSE_LOG_ENUM;
+				}
+			}
+		} else {
+			if (!strcasecmp(a->argv[5], "ALL")) {
+				ast_log_indexs[mod->index] = 0;
+			} else if (!strcasecmp(a->argv[5], "DEBUG")) {
+				ast_log_indexs[mod->index] &= ~AST_DEBUG_LOG_ENUM;
+			} else if (!strcasecmp(a->argv[5], "NOTICE")) {
+				ast_log_indexs[mod->index] &= ~AST_NOTICE_LOG_ENUM;
+			} else if (!strcasecmp(a->argv[5], "WARNING")) {
+				ast_log_indexs[mod->index] &= ~AST_WARNING_LOG_ENUM;
+			} else if (!strcasecmp(a->argv[5], "ERROR")) {
+				ast_log_indexs[mod->index] &= ~AST_ERROR_LOG_ENUM;
+			} else if (!strcasecmp(a->argv[5], "VERBOSE")) {
+				ast_log_indexs[mod->index] &= ~AST_VERBOSE_LOG_ENUM;
+			}
+		}
 	} else {
 		if (!strcasecmp(a->argv[3], "ALL")) {
 			int index;
 
-			for (index = 0; index <= ast_log_index && index < 65535; index++) {
-				ast_log_indexs[index] = AST_ALL_LOG_ENUM;
+			if (!strcasecmp(a->argv[5], "ALL")) {
+				for (index = 0; index <= ast_log_index && index < 65535; index++) {
+					ast_log_indexs[index] = AST_ALL_LOG_ENUM;
+				}
+			} else if (!strcasecmp(a->argv[5], "DEBUG")) {
+				for (index = 0; index <= ast_log_index && index < 65535; index++) {
+					ast_log_indexs[index] |= AST_DEBUG_LOG_ENUM;
+				}
+			} else if (!strcasecmp(a->argv[5], "NOTICE")) {
+				for (index = 0; index <= ast_log_index && index < 65535; index++) {
+					ast_log_indexs[index] |= AST_NOTICE_LOG_ENUM;
+				}
+			} else if (!strcasecmp(a->argv[5], "WARNING")) {
+				for (index = 0; index <= ast_log_index && index < 65535; index++) {
+					ast_log_indexs[index] |= AST_WARNING_LOG_ENUM;
+				}
+			} else if (!strcasecmp(a->argv[5], "ERROR")) {
+				for (index = 0; index <= ast_log_index && index < 65535; index++) {
+					ast_log_indexs[index] |= AST_ERROR_LOG_ENUM;
+				}
+			} else if (!strcasecmp(a->argv[5], "VERBOSE")) {
+				for (index = 0; index <= ast_log_index && index < 65535; index++) {
+					ast_log_indexs[index] |= AST_VERBOSE_LOG_ENUM;
+				}
 			}
 		} else {
 			if (!strcasecmp(a->argv[5], "ALL")) {

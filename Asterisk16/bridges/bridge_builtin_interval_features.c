@@ -48,6 +48,10 @@
 #include "asterisk/musiconhold.h"
 #include "asterisk/causes.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("Bridge");
+#endif
+
 static int bridge_features_duration_callback(struct ast_bridge_channel *bridge_channel, void *hook_pvt)
 {
 	struct ast_bridge_features_limits *limits = hook_pvt;

@@ -44,6 +44,10 @@
 #include "asterisk/frame.h"
 #include "asterisk/rtp_engine.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("Bridge");
+#endif
+
 /*! \brief Internal structure which contains bridged RTP channel hook data */
 struct native_rtp_framehook_data {
 	/*! \brief Framehook used to intercept certain control frames */

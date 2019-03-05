@@ -33,6 +33,10 @@
   #include "include/hrirs_configuration.h"
 #endif
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("Bridge");
+#endif
+
 /*! The number of prealloced channels when a bridge will be created. */
 #define CONVOLVE_CHANNEL_PREALLOC 3
 /*! Max size of the convolve buffer. */

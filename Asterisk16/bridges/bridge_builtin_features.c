@@ -54,6 +54,10 @@
 #include "asterisk/audiohook.h"
 #include "asterisk/causes.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("Bridge");
+#endif
+
 enum set_touch_variables_res {
 	SET_TOUCH_SUCCESS,
 	SET_TOUCH_UNSET,

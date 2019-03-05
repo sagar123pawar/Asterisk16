@@ -37,6 +37,10 @@
 #include "asterisk/pbx.h"
 #include "asterisk/bridge_after.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("Bridge");
+#endif
+
 struct after_bridge_cb_node {
 	/*! Next list node. */
 	AST_LIST_ENTRY(after_bridge_cb_node) list;

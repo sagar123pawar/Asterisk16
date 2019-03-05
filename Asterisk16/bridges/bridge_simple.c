@@ -44,6 +44,10 @@
 #include "asterisk/frame.h"
 #include "asterisk/stream.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("Bridge");
+#endif
+
 static void simple_bridge_stream_topology_changed(struct ast_bridge *bridge,
 		struct ast_bridge_channel *bridge_channel);
 

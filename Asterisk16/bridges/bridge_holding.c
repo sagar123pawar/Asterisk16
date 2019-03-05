@@ -48,6 +48,10 @@
 #include "asterisk/musiconhold.h"
 #include "asterisk/format_cache.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("Bridge");
+#endif
+
 enum holding_roles {
 	HOLDING_ROLE_PARTICIPANT,
 	HOLDING_ROLE_ANNOUNCER,

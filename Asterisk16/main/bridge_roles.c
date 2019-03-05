@@ -41,6 +41,10 @@
 #include "asterisk/bridge_roles.h"
 #include "asterisk/stringfields.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("Bridge");
+#endif
+
 struct bridge_role_option {
 	AST_LIST_ENTRY(bridge_role_option) list;
 	AST_DECLARE_STRING_FIELDS(
