@@ -950,6 +950,28 @@ PJ_DEF(void) pjsip_tsx_layer_dump(pj_bool_t detail)
 #endif
 }
 
+#ifdef GRANDSTREAM_NETWORKS
+/*
+ * Dump2 transaction layer.
+ */
+PJ_DEF(void) pjsip_tsx_layer_dump2(int fd, pjsip_tsx_layer_callback tsx_callback)
+{
+	 pj_hash_iterator_t itbuf, *it;
+
+	 pj_mutex_lock(mod_tsx_layer.mutex);
+	 it = pj_hash_first(mod_tsx_layer.htable, &itbuf);
+	 while (it != NULL) {
+		 pjsip_transaction *tsx = (pjsip_transaction*)pj_hash_this(mod_tsx_layer.htable,it);
+		 if (tsx_callback) {
+			tsx_callback(fd, tsx->obj_name, (tsx->last_tx ? pjsip_tx_data_get_info(tsx->last_tx): "none"),
+				tsx->status_code, pjsip_tsx_state_str(tsx->state));
+		 }
+		 it = pj_hash_next(mod_tsx_layer.htable, it);
+	}
+	 pj_mutex_unlock(mod_tsx_layer.mutex);
+}
+#endif
+
 /*****************************************************************************
  **
  ** Transaction

@@ -653,6 +653,9 @@ PJ_DECL_DATA(pj_pool_factory_policy) pj_pool_factory_default_policy;
  */
 PJ_DECL(const pj_pool_factory_policy*) pj_pool_factory_get_default_policy(void);
 
+#ifdef GRANDSTREAM_NETWORKS
+typedef void (*pj_caching_pool_dump2_status)(int fd, const char *cachpool, const char *fmt, ...);
+#endif
 
 /**
  * This structure contains the declaration for pool factory interface.
@@ -708,6 +711,15 @@ struct pj_pool_factory
      * @param factory	The pool factory.
      */
     void (*dump_status)( pj_pool_factory *factory, pj_bool_t detail );
+
+#ifdef GRANDSTREAM_NETWORKS
+	/**
+     * Dump pool status to log.
+     *
+     * @param factory	The pool factory.
+     */
+    void (*dump2_status)(int fd, pj_pool_factory *factory, pj_caching_pool_dump2_status callback);
+#endif
 
     /**
      * This is optional callback to be called by allocation policy when

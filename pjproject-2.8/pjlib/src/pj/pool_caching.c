@@ -37,6 +37,9 @@ static void cpool_dump_status(pj_pool_factory *factory, pj_bool_t detail );
 static pj_bool_t cpool_on_block_alloc(pj_pool_factory *f, pj_size_t sz);
 static void cpool_on_block_free(pj_pool_factory *f, pj_size_t sz);
 
+#ifdef GRANDSTREAM_NETWORKS
+static void cpool_dump2_status(int fd, pj_pool_factory *factory, pj_caching_pool_dump2_status callback);
+#endif
 
 static pj_size_t pool_sizes[PJ_CACHING_POOL_ARRAY_SIZE] = 
 {
@@ -76,6 +79,9 @@ PJ_DEF(void) pj_caching_pool_init( pj_caching_pool *cp,
     cp->factory.dump_status = &cpool_dump_status;
     cp->factory.on_block_alloc = &cpool_on_block_alloc;
     cp->factory.on_block_free = &cpool_on_block_free;
+#ifdef GRANDSTREAM_NETWORKS
+	cp->factory.dump2_status = &cpool_dump2_status;
+#endif
 
     pool = pj_pool_create_on_buf("cachingpool", cp->pool_buf, sizeof(cp->pool_buf));
     pj_lock_create_simple_mutex(pool, "cachingpool", &cp->lock);
@@ -333,6 +339,39 @@ static void cpool_on_block_free(pj_pool_factory *f, pj_size_t sz)
     //pj_mutex_unlock(cp->mutex);
 }
 
+#ifdef GRANDSTREAM_NETWORKS
+static void cpool_dump2_status(int fd, pj_pool_factory *factory, pj_caching_pool_dump2_status callback)
+{
+	pj_caching_pool *cp = (pj_caching_pool*)factory;
+
+	pj_lock_acquire(cp->lock);
+
+	if (callback) {
+		callback(fd, "cachpool", " Dumping caching pool:");
+		callback(fd, "cachpool", "   Capacity=%u, max_capacity=%u, used_cnt=%u", cp->capacity, cp->max_capacity, cp->used_count);
+
+		pj_pool_t *pool = (pj_pool_t*) cp->used_list.next;
+		pj_size_t total_used = 0, total_capacity = 0;
+		callback(fd, "cachpool", "  Dumping all active pools:");
+
+		while (pool != (void*)&cp->used_list) {
+			pj_size_t pool_capacity = pj_pool_get_capacity(pool);
+			callback(fd, "cachpool", "   %20s: %10d of %10d (%3d%%) used", pj_pool_getobjname(pool), 
+				pj_pool_get_used_size(pool), pool_capacity, pj_pool_get_used_size(pool)*100/pool_capacity);
+			total_used += pj_pool_get_used_size(pool);
+			total_capacity += pool_capacity;
+			pool = pool->next;
+		}
+
+		if (total_capacity) {
+			callback(fd, "cachpool", "  Total %9d of %9d (%d %%) used!", total_used, total_capacity,
+				total_used * 100 / total_capacity);
+		}
+	}
+
+	pj_lock_release(cp->lock);
+}
+#endif
 
 #endif	/* PJ_HAS_POOL_ALT_API */
 

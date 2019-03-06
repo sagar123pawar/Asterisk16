@@ -3168,10 +3168,73 @@ static char *cli_show_settings(struct ast_cli_entry *e, int cmd, struct ast_cli_
 	return CLI_SUCCESS;
 }
 
+#ifdef GRANDSTREAM_NETWORKS
+static void cli_transaction(int fd, const char *tsx_name, const char *last_tx_tsx_info, int status_code, const char *state)
+{
+	ast_cli(fd, "%20s %80s %20d %20s\n", tsx_name, last_tx_tsx_info, status_code, state);
+}
+
+static char *cli_show_transaction(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
+{
+	switch (cmd) {
+	case CLI_INIT:
+		e->command = "pjsip show transaction";
+		e->usage = "Usage: pjsip show transaction\n";
+		return NULL;
+	case CLI_GENERATE:
+		break;
+	}
+
+	if (a->argc < 3) {
+		return NULL;
+	}
+
+	ast_cli(a->fd, "%20s %80s %20s %20s\n", "tsx_name", "last_tx_tsx_info", "status_code", "state");
+	pjsip_tsx_layer_dump2(a->fd, cli_transaction);
+	ast_cli(a->fd, "\nTotal %d transaction!\n\n", pjsip_tsx_layer_get_tsx_count());
+
+	return CLI_SUCCESS;
+}
+
+static void cli_dialog(int fd, const char *dlginfo)
+{
+	ast_cli(fd, "  %s\n", dlginfo);
+}
+
+static char *cli_show_dialog(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
+{
+	switch (cmd) {
+	case CLI_INIT:
+		e->command = "pjsip show dialog";
+		e->usage = "Usage: pjsip show dialog\n";
+		return NULL;
+	case CLI_GENERATE:
+		break;
+	}
+
+	if (a->argc < 3) {
+		return NULL;
+	}
+
+	ast_cli(a->fd, "Dialog info:\n");
+	pjsip_ua_dump2(a->fd, cli_dialog);
+	ast_cli(a->fd, "\nTotal %d dialog!\n", pjsip_ua_get_dlg_set_count());
+
+	return CLI_SUCCESS;
+}
+
+static char *cli_show_cachpool(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a);
+#endif
+
 static struct ast_cli_entry cli_commands[] = {
 	AST_CLI_DEFINE(cli_dump_endpt, "Dump the res_pjsip endpt internals"),
 	AST_CLI_DEFINE(cli_show_settings, "Show global and system configuration options"),
-	AST_CLI_DEFINE(cli_show_endpoint_identifiers, "List registered endpoint identifiers")
+	AST_CLI_DEFINE(cli_show_endpoint_identifiers, "List registered endpoint identifiers"),
+#ifdef GRANDSTREAM_NETWORKS
+	AST_CLI_DEFINE(cli_show_transaction, "List transaction"),
+	AST_CLI_DEFINE(cli_show_dialog, "List dialog"),
+	AST_CLI_DEFINE(cli_show_cachpool, "List cachpool")
+#endif
 };
 
 AST_RWLIST_HEAD_STATIC(endpoint_formatters, ast_sip_endpoint_formatter);
@@ -5212,6 +5275,40 @@ void never_called_res_pjsip(void)
 {
 	pjmedia_strerror(0, NULL, 0);
 }
+
+#ifdef GRANDSTREAM_NETWORKS
+static void cli_cachpool(int fd, const char *cachpool, const char *fmt, ...)
+{
+	va_list ap;
+	char str_cachpool[1024] = {0};
+
+	va_start(ap, fmt);
+	vsnprintf(str_cachpool, sizeof(str_cachpool) - 1, fmt, ap);
+	va_end(ap);
+
+	ast_cli(fd, "%s\n", str_cachpool);
+}
+
+static char *cli_show_cachpool(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
+{
+	switch (cmd) {
+	case CLI_INIT:
+		e->command = "pjsip show cachpool";
+		e->usage = "Usage: pjsip show cachpool\n";
+		return NULL;
+	case CLI_GENERATE:
+		break;
+	}
+
+	if (a->argc < 3) {
+		return NULL;
+	}
+
+	caching_pool.factory.dump2_status(a->fd, &caching_pool.factory, cli_cachpool);
+
+	return CLI_SUCCESS;
+}
+#endif
 
 static int load_module(void)
 {

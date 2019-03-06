@@ -28,13 +28,13 @@ export CXX="/usr/bin/g++"
 #cd -
 #echo Asterisk debug malloc build done.
 
-export CFLAGS=" \
+export CFLAGS=" -g \
     -DNDEBUG \
     -D_ASTERISK_ASTMM_H \
     -DGRANDSTREAM_NETWORKS \
     -D_GNU_SOURCE"
 
-export CXXFLAGS=" \
+export CXXFLAGS=" -g \
     -DNDEBUG \
     -D_ASTERISK_ASTMM_H \
     -DGRANDSTREAM_NETWORKS \
