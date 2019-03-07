@@ -1015,21 +1015,18 @@ PJ_DEF(void) pjsip_ua_dump2(int fd, pjsip_ua_dialog callback)
 
 			/* First dialog in dialog set. */
 			dlg = dlg_set->dlg_list.next;
-			if (dlg->role == PJSIP_ROLE_UAC) {
-				title = "  [UAC] ";
+
+			char userinfo[256];
+			int len = pjsip_hdr_print_on(dlg->call_id, userinfo, sizeof(userinfo));
+			if (len < 0) {
+				pj_ansi_strcpy(userinfo, "<--uri too long-->");
 			} else {
-				title = "  [UAS]  ";
+				userinfo[len] = '\0';
 			}
 
-			print_dialog(title, dlg, dlginfo, sizeof(dlginfo));
-			callback(fd, dlginfo);
-
-			/* Next dialog in dialog set (forked) */
-			dlg = dlg->next;
-			while (dlg != (pjsip_dialog*) &dlg_set->dlg_list) {
-				print_dialog("    [forked] ", dlg, dlginfo, sizeof(dlginfo));
-				dlg = dlg->next;
-			}
+			callback(fd, dlg, "%20s %20s %5s %5s %50s",
+				dlg->obj_name, dlg->pool->obj_name, (dlg->role == PJSIP_ROLE_UAC) ? "UAC" : "UAS",
+				(PJSIP_DIALOG_STATE_NULL == dlg->state) ? "null" : "est", userinfo);
 		}
 	}
 	pj_mutex_unlock(mod_ua.mutex);

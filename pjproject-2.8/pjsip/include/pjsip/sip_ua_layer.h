@@ -155,7 +155,7 @@ PJ_DECL(pj_status_t) pjsip_ua_unregister_dlg(pjsip_user_agent *ua,
 					     pjsip_dialog *dlg );
 
 #ifdef GRANDSTREAM_NETWORKS
-typedef void (*pjsip_ua_dialog)(int fd, const char *dlginfo);
+typedef void (*pjsip_ua_dialog)(int fd, pjsip_dialog *dlg, const char *fmt, ...);
 
 /*
 * Dump2 user agent contents (e.g. all dialogs).
