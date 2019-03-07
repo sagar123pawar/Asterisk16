@@ -549,7 +549,7 @@ pj_status_t create_uas_dialog( pjsip_user_agent *ua,
 
     /* Done. */
     *p_dlg = dlg;
-    PJ_LOG(5,(dlg->obj_name, "UAS dialog created"));
+    PJ_LOG(5,(dlg->obj_name, "UAS dialog created, sess_count=%d", dlg->sess_count));
     return PJ_SUCCESS;
 
 on_error:

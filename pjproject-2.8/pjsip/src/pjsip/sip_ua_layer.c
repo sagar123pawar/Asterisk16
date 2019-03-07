@@ -1026,7 +1026,8 @@ PJ_DEF(void) pjsip_ua_dump2(int fd, pjsip_ua_dialog callback)
 
 			callback(fd, dlg, "%20s %20s %5s %5s %50s",
 				dlg->obj_name, dlg->pool->obj_name, (dlg->role == PJSIP_ROLE_UAC) ? "UAC" : "UAS",
-				(PJSIP_DIALOG_STATE_NULL == dlg->state) ? "null" : "est", userinfo);
+				(PJSIP_DIALOG_STATE_NULL == dlg->state) ? "null" : "est",
+				!strncasecmp(userinfo, "Call-ID: ", strlen("Call-ID: ")) ? userinfo + strlen("Call-ID: ") : userinfo);
 		}
 	}
 	pj_mutex_unlock(mod_ua.mutex);
