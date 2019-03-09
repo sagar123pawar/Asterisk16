@@ -668,14 +668,14 @@ static int ast_module_index AST_MAYBE_UNUSED;
 #define AST_MODULES_INDEX ast_module_index
 #endif
 
-#define AST_MODULE_LOG(modname)												\
-static void __attribute__((constructor)) __ast_log_module_register(void)	\
-{																			\
-	ast_log_module_register(modname, &AST_MODULES_INDEX, __FILE__, __LINE__);					\
-}																			\
-static void __attribute__((destructor)) __ast_log_module_unregister(void)	\
-{																			\
-	ast_log_module_unregister(modname,__FILE__, __LINE__);										\
+#define AST_MODULE_LOG(modname)                                                  \
+static void __attribute__((constructor)) __ast_log_module_register(void)         \
+{                                                                                \
+	ast_log_module_register(modname, &AST_MODULES_INDEX, __FILE__, __LINE__);    \
+}                                                                                \
+static void __attribute__((destructor)) __ast_log_module_unregister(void)        \
+{                                                                                \
+	ast_log_module_unregister(modname,__FILE__, __LINE__);                       \
 }
 #endif
 
