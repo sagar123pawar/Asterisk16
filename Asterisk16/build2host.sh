@@ -8,8 +8,8 @@
 
 ROOT_DIR=$(cd `dirname $0`; pwd)
 
-export INSTALL_PREFIX=/opt/usr/asterisk
-export EXTERNAL_PREFIX=/opt/usr/asterisk
+export INSTALL_PREFIX=/opt/asterisk
+export EXTERNAL_PREFIX=/opt/asterisk
 
 export CC="/usr/bin/gcc"
 export CXX="/usr/bin/g++"

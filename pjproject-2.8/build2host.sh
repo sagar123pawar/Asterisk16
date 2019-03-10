@@ -8,25 +8,11 @@
 
 ROOT_DIR=$(cd `dirname $0`; pwd)
 
-export INSTALL_PREFIX=/opt/usr/asterisk
-export EXTERNAL_PREFIX=/opt/usr/asterisk
+export INSTALL_PREFIX=/opt/asterisk
+export EXTERNAL_PREFIX=/opt/asterisk
 
 export CC="/usr/bin/gcc"
 export CXX="/usr/bin/g++"
-
-#echo  Compiling asterisk debug malloc stubs....
-#cd ${ROOT_DIR}/third_party/asterisk
-#`${CC} -fPIC -shared asterisk_malloc_debug.c -o libasterisk_malloc_debug.so`
-
-#if [ -d ${ROOT_DIR}/pjsip-apps/lib ];
-#then
-#    cp -f libasterisk_malloc_debug.so ${ROOT_DIR}/pjsip-apps/lib
-#else
-#    mkdir -p ${ROOT_DIR}/pjsip-apps/lib
-#    cp -f libasterisk_malloc_debug.so ${ROOT_DIR}/pjsip-apps/lib
-#fi
-#cd -
-#echo Asterisk debug malloc build done.
 
 export CFLAGS=" -g \
     -DNDEBUG \
@@ -40,8 +26,7 @@ export CXXFLAGS=" -g \
     -DGRANDSTREAM_NETWORKS \
     -D_GNU_SOURCE"
 
-export LDFLAGS="-L${EXTERNAL_PREFIX}/lib" # \
-#    -L${ROOT_DIR}/pjsip-apps/lib -lasterisk_malloc_debug"
+export LDFLAGS="-L${EXTERNAL_PREFIX}/lib"
 
 ./configure \
     --prefix=${INSTALL_PREFIX} \
@@ -71,3 +56,6 @@ export LDFLAGS="-L${EXTERNAL_PREFIX}/lib" # \
     --disable-resample \
     --disable-g711-codec \
     --enable-epoll
+
+
+
