@@ -1,6 +1,6 @@
-
 [general]
-dateformat=%F %T:%6q
+dateformat = %F %T:%6q
+logger_queue_limit = 65535
 
 [logfiles]
 console => notice,warning,error,debug,verbose,dtmf,fax,security

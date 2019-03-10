@@ -1031,7 +1031,11 @@ static struct ast_module *load_dynamic_module(const char *resource_in, unsigned 
 
 	/* Try loading in quiet mode first with RTLD_LOCAL.  The majority of modules do not
 	 * export symbols so this allows the least number of calls to dlopen. */
+#ifdef GRANDSTREAM_NETWORKS
+	mod = load_dlopen(resource_in, so_ext, fn, RTLD_LAZY | RTLD_LOCAL, suppress_logging);
+#else
 	mod = load_dlopen(resource_in, so_ext, fn, RTLD_NOW | RTLD_LOCAL, suppress_logging);
+#endif
 
 	if (!mod || !ast_test_flag(mod->info, AST_MODFLAG_GLOBAL_SYMBOLS)) {
 		return mod;
@@ -1040,7 +1044,11 @@ static struct ast_module *load_dynamic_module(const char *resource_in, unsigned 
 	/* Close the module so we can reopen with correct flags. */
 	logged_dlclose(resource_in, mod->lib);
 
+#ifdef GRANDSTREAM_NETWORKS
+	return load_dlopen(resource_in, so_ext, fn, RTLD_LAZY | RTLD_GLOBAL, 0);
+#else
 	return load_dlopen(resource_in, so_ext, fn, RTLD_NOW | RTLD_GLOBAL, 0);
+#endif
 }
 
 int modules_shutdown(void)
