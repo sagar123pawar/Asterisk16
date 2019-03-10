@@ -1,0 +1,36 @@
+[general]
+;format = wav49
+;serveremail = anonymous@example.com
+;attach = yes
+;maxmsg = 50
+;maxmessage = 120
+;minmessage = 0
+;maxsecs = 900
+;minsecs = 3
+;maxgreet = 60
+skipms = 3000
+maxsilence = 60
+silencethreshold = 128
+maxlogins = 3
+emaildateformat = %A, %B %d, %Y at %r
+pagerdateformat = %A, %B %d, %Y at %r
+sendvoicemail = yes ; Allow the user to compose and send a voicemail while inside
+forward_urgent_auto = yes
+;operator = no
+exitcontext = default
+callback = from-internal
+;emailsubject = New voicemail from ${VM_CALLERID} for ${VM_MAILBOX}
+;emailbody = Hello ${VM_NAME}, you received a message lasting ${VM_DUR} at ${VM_DATE} from, (${VM_CALLERID}). This is message ${VM_MSGNUM} in your voicemail Inbox.
+;fromstring = PBX
+#include voicemail_general_additional.conf
+
+[zonemessages]
+eastern = America/New_York|'vm-received' Q 'digits/at' IMp
+central = America/Chicago|'vm-received' Q 'digits/at' IMp
+central24 = America/Chicago|'vm-received' q 'digits/at' H N 'hours'
+military = Zulu|'vm-received' q 'digits/at' H N 'hours' 'phonetic/z_p'
+european = Europe/Copenhagen|'vm-received' a d b 'digits/at' HM
+
+[default]
+#include voicemail_users.conf
+[other]

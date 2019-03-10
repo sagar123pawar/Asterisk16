@@ -1,0 +1,26 @@
+[general]
+enabled = yes
+bindaddr = 0.0.0.0
+port = 7777
+timestampevents = no
+webenabled = no
+
+[cgi]
+secret = hkfuvtxc17de5ogw3j92nlyzrqb0a68s
+eventfilter=Event: (FAXStatus|SendFAX|cpt_autodetect_state|acim_autodetect_state|OriginateResponse|SoftHangupRequest)
+writetimeout = 1000
+read = system,call,log,verbose,command,agent,config,originate
+write = system,call,log,verbose,command,agent,config,originate
+
+[pyuser]
+secret = b2glvoxhu6edn4pft8irz0wjy95csm7k
+writetimeout = 1000
+read = command,config,originate,call,system,agent
+write = command,config,originate,call,system,agent
+
+[cti]
+secret = e30s9x2lqgzyncbhomtdu1kar486f7wi
+eventfilter=!Event: (DeviceStateChange|MusicOnHoldStart|AgentCalled|DialBegin|MusicOnHoldStop|NewCallerid|AgentConnect|HangupRequest|SoftHangupRequest|AgentComplete|QueueCallers)
+writetimeout = 1000
+read = system,call,log,verbose,command,agent,config,originate
+write = system,call,log,verbose,command,agent,config,originate

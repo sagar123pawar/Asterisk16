@@ -1,0 +1,13 @@
+;!
+;! Automatically generated configuration file
+;! Filename: iptables_security.conf (/app/asterisk/etc/asterisk/iptables_security.conf)
+;! Generator: Manager
+;! Creation Date: Sun Dec 12 09:05:43 2010
+;!
+[general]
+syn_flood_enable = no
+spoofing_enable = no
+death_ping_enable = no
+old_ip = 
+tcp_ports = 
+udp_ports = 

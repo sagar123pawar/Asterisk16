@@ -55,6 +55,10 @@
 #include "asterisk/md5.h"
 #include "asterisk/utils.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("Loader");
+#endif
+
 /*** DOCUMENTATION
 	<managerEvent language="en_US" name="Reload">
 		<managerEventInstance class="EVENT_FLAG_SYSTEM">

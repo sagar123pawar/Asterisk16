@@ -1,0 +1,8 @@
+[general]
+audionum = 8
+videonum = 3
+fullvideonum = 1
+presentationnum = 1
+confroomnum = 1
+chairman_bw = 1230
+common_bw = 250

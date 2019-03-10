@@ -1,0 +1,9 @@
+[master] ; currently, only file "master.db" is supported, with only one table at a time.
+table	=> cdr
+columns	=> accountcode, src, dst, dcontext, clid, channel, dstchannel, lastapp, lastdata, start, answer, end, duration, billsec, disposition, amaflags, uniqueid, userfield, channel_ext, dstchannel_ext, service, caller_name, recordfiles, dstanswer, chanext, dstchanext, session, action_owner, action_type, src_trunk_name, dst_trunk_name
+values	=> '${CDR(accountcode)}','${CDR(src)}','${CDR(dst)}','${CDR(dcontext)}','${CDR(clid)}','${CDR(channel)}','${CDR(dstchannel)}','${CDR(lastapp)}','${CDR(lastdata)}','${CDR(start)}','${CDR(answer)}','${CDR(end)}','${CDR(duration)}','${CDR(billsec)}','${CDR(disposition)}','${CDR(amaflags)}','${CDR(uniqueid)}','${CDR(userfield)}', '${CDR(channel_ext)}', '${CDR(dstchannel_ext)}', '${CDR(service)}', '${CDR(caller_name)}', '${CDR(RECORD_FILES)}','${CDR(dstanswer)}','${CDR(chanext)}','${CDR(dstchanext)}','${CDR(session)}','${CDR(action_owner)}','${CDR(action_type)}','${CDR(src_trunk_name)}','${CDR(dst_trunk_name)}'
+[asterisk_event]
+crm_enable => 0
+pms_enable => 0
+[callspro]
+enable => 0

@@ -1,0 +1,13 @@
+[general]
+rtpstart = 10000
+rtpend = 20000
+strictrtp = no
+rtpchecksums = no
+rtcptransparently = yes
+icesupport = yes
+bfcpstart = 50000
+bfcpend = 52999
+bfcp_tcp_start = 53000
+bfcp_tcp_end = 55999
+turnconnectwaitms = 5000
+

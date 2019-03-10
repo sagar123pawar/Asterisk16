@@ -1,0 +1,4 @@
+
+[general]
+
+default_perm=permit	; To leave asterisk working as normal

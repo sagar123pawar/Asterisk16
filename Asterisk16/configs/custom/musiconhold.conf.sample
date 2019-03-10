@@ -1,0 +1,15 @@
+[default]
+mode=files
+directory = /app/asterisk/var/lib/asterisk/moh
+sort=random
+
+[ringbacktone_default]
+mode=files
+directory = /app/asterisk/var/lib/asterisk/moh/guimohdir_ringbacktone_default
+sort=alpha
+
+
+[rbt]
+mode=files
+directory = /app/asterisk/var/lib/asterisk/moh/guimohdir_rbt
+sort=alpha

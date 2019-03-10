@@ -1,0 +1,12 @@
+[startup]
+log_level=5
+
+[log_mappings]
+asterisk_error = 1
+asterisk_warning = 2
+asterisk_notice = 1
+asterisk_verbose = 1
+asterisk_debug = 3,4,5,6
+
+
+

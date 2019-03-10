@@ -1,0 +1,140 @@
+
+[4000]
+type = auth
+auth_type = userpass
+username = 4000
+password = gs123456
+realm = grandstream
+
+[4001]
+type = auth
+auth_type = userpass
+username = 4001
+password = gs123456
+realm = grandstream
+
+[4002]
+type = auth
+auth_type = userpass
+username = 4002
+password = gs123456
+realm = grandstream
+
+[4003]
+type = auth
+auth_type = userpass
+username = 4003
+password = gs123456
+realm = grandstream
+
+[4004]
+type = auth
+auth_type = userpass
+username = 4004
+password = gs123456
+realm = grandstream
+
+[4005]
+type = auth
+auth_type = userpass
+username = 4005
+password = gs123456
+realm = grandstream
+
+[4006]
+type = auth
+auth_type = userpass
+username = 4006
+password = gs123456
+realm = grandstream
+
+[4007]
+type = auth
+auth_type = userpass
+username = 4007
+password = gs123456
+realm = grandstream
+
+[4008]
+type = auth
+auth_type = userpass
+username = 4008
+password = gs123456
+realm = grandstream
+
+[4009]
+type = auth
+auth_type = userpass
+username = 4009
+password = gs123456
+realm = grandstream
+
+[4010]
+type = auth
+auth_type = userpass
+username = 4010
+password = gs123456
+realm = grandstream
+
+[4011]
+type = auth
+auth_type = userpass
+username = 4011
+password = gs123456
+realm = grandstream
+
+[4012]
+type = auth
+auth_type = userpass
+username = 4012
+password = gs123456
+realm = grandstream
+
+[4013]
+type = auth
+auth_type = userpass
+username = 4013
+password = gs123456
+realm = grandstream
+
+[4014]
+type = auth
+auth_type = userpass
+username = 4014
+password = gs123456
+realm = grandstream
+
+[4015]
+type = auth
+auth_type = userpass
+username = 4015
+password = gs123456
+realm = grandstream
+
+[4016]
+type = auth
+auth_type = userpass
+username = 4016
+password = gs123456
+realm = grandstream
+
+[4017]
+type = auth
+auth_type = userpass
+username = 4017
+password = gs123456
+realm = grandstream
+
+[4018]
+type = auth
+auth_type = userpass
+username = 4018
+password = gs123456
+realm = grandstream
+
+[4019]
+type = auth
+auth_type = userpass
+username = 4019
+password = gs123456
+realm = grandstream

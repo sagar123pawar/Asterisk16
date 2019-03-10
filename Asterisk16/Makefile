@@ -811,7 +811,7 @@ install-configs:
 adsi:
 	@echo Installing adsi config files...
 	$(INSTALL) -d "$(DESTDIR)$(ASTETCDIR)"
-	@for x in configs/samples/*.adsi; do \
+	@for x in configs/custom/*.adsi; do \
 		dst="$(DESTDIR)$(ASTETCDIR)/`$(BASENAME) $$x`" ; \
 		if [ -f "$${dst}" ] ; then \
 			echo "Overwriting $$x" ; \
@@ -823,7 +823,7 @@ adsi:
 
 samples: adsi
 	@echo Installing other config files...
-	$(call INSTALL_CONFIGS,configs/samples,.sample)
+	$(call INSTALL_CONFIGS,configs/custom,.sample)
 	$(INSTALL) -d "$(DESTDIR)$(ASTSPOOLDIR)/voicemail/default/1234/INBOX"
 	build_tools/make_sample_voicemail "$(DESTDIR)/$(ASTDATADIR)" "$(DESTDIR)/$(ASTSPOOLDIR)"
 	@for x in phoneprov/*; do \

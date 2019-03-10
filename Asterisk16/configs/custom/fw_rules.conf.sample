@@ -1,0 +1,5 @@
+[firewall_rules_container]
+[general]
+ping_enable =
+syn_flood =
+ping_of_death =

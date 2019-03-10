@@ -1,0 +1,5 @@
+dsn=somedsn
+dbuser=someuser
+dbpass=password
+backslash_is_escape=yes
+

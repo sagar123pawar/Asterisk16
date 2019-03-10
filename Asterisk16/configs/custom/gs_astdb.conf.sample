@@ -1,0 +1,4 @@
+[general]
+enable = no
+numberlimit = 30
+timelimit = 3600

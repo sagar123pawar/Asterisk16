@@ -1,0 +1,6 @@
+[general]
+enable = no
+threshold = 100
+timeout = 1
+block_timeout = 120
+[whitelist]

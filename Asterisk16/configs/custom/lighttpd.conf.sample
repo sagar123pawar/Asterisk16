@@ -1,0 +1,66 @@
+var.server_root = "/app/asterisk/var/lib/asterisk/static-http"
+var.state_dir   = "/app/asterisk/var/run"
+var.home_dir    = "/app/asterisk/var/lib/lighttpd"
+var.conf_dir    = "/app/asterisk/etc/lighttpd"
+var.vhosts_dir  = server_root + "/vhosts"
+var.cache_dir   = "/app/asterisk/var/cache/lighttpd"
+var.socket_dir  = home_dir + "/sockets"
+include "modules.conf"
+server.port = "8089"
+server.use-ipv6 = "enable"
+server.set-v6only = "disable"
+server.document-root = server_root
+server.pid-file = state_dir + "/lighttpd.pid"
+server.event-handler = "linux-sysepoll"
+server.network-backend = "writev"
+server.max-fds = 2048
+server.stat-cache-engine = "simple"
+server.max-connections = 1024
+server.max-request-size = 307200
+server.error-handler-404 = "/index.html"
+server.max-read-idle = 120
+index-file.names += (
+"index.xhtml", "index.html", "index.htm", "default.htm", "index.php"
+)
+url.access-deny             = ( "~", ".inc" )
+$HTTP["url"] =~ "\.pdf$" {
+server.range-requests = "disable"
+}
+static-file.exclude-extensions = ( ".php", ".pl", ".fcgi", ".scgi" )
+include "conf.d/mime.conf"
+include "conf.d/dirlisting.conf"
+server.modules += ("mod_openssl")
+server.follow-symlink = "enable"
+server.upload-dirs = ( "/update" )
+ssl.engine="enable"
+ssl.pemfile = "/app/asterisk/etc/lighttpd/lighttpd.pem"
+ssl.use-sslv2 = "disable"
+ssl.use-sslv3 = "disable"
+#ssl.ca-file = ""
+static-file.etags = "enable"
+etag.use-mtime = "enable"
+#web_redirect ==== start
+$SERVER["socket"] == ":80" {
+$HTTP["host"] =~ "(.*)" {
+url.redirect = ( "^/(.*)" => "https://%1:8089/$1")
+}
+}
+#web_redirect ==== end
+$HTTP["url"] =~ "^/ws" {
+    proxy.server = ( "" => ( ( "host" => "127.0.0.1", "port" => "8088" ) ) )
+    proxy.header = ( "upgrade" => "enable" )
+}
+########################auth.conf################################
+auth.backend = "htdigest"
+auth.backend.htdigest.userfile = "/app/asterisk/etc/lighttpd/lighttpd-vm.user"
+auth.require = (
+"/vvmapi" =>
+(
+"method" => "digest",
+"realm" => "passwd",
+"require" => "valid-user",
+),
+)
+$SERVER["socket"] == "127.0.0.1:8439" {
+ssl.engine  = "disable"
+}

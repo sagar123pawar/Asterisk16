@@ -1,0 +1,5 @@
+[general]
+#include iax_general_additional.conf
+#include iax_registrations.conf	
+#include iax_users.conf
+

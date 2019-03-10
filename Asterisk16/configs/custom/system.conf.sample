@@ -1,0 +1,6 @@
+fxsls=1-4
+fxols = 5
+fxols = 6
+loadzone = us
+defaultzone = us
+echocanceller = oslec,1-6

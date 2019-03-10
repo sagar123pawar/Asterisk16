@@ -1,0 +1,15 @@
+[general]
+maxcomplicating = 1
+queuemaxmember = 6
+maxrate = 14400
+minrate = 2400
+statusevents = yes
+modems = v17,v27,v29
+ecm = yes
+support_image_audio = no
+resend_switch = no
+resend_max_times = 5
+resend_interval = 50
+emailsubject = New Fax from ${CALLERIDNUM} ${CALLERIDNAME}
+emailbody = Hello ${RECEIVEEXTEN}, you have received a new fax ${FILENAME} (${FAXPAGES} pages) at ${FAXDATE} from ${CALLERIDNUM} ${CALLERIDNAME}.
+

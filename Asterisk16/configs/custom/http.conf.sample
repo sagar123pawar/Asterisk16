@@ -1,0 +1,21 @@
+[general]
+enabled = yes
+enablestatic = no
+tlsenable = no
+bindaddr = 0.0.0.0
+bindport = 8088
+prefix = 
+tlsbindaddr = 0.0.0.0:8445
+enable_webrtc_anonymous_call = no
+web_port = 8089
+tlscertfile = /cfg/etc/asterisk/keys/cert/TLS.crt
+tlsprivatekey = /cfg/etc/asterisk/keys/cert/TLS.key
+tlscafile = /cfg/etc/asterisk/keys/cert/TLS.ca
+httpserver = https://192.168.2.1:8089
+
+[post_mappings]
+
+[cdrapi]
+username=cdrapi
+secret=cdrapi123
+deny= 0.0.0.0/0.0.0.0

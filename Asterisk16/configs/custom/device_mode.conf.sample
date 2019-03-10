@@ -1,0 +1,9 @@
+[global]
+exp_ip = 
+device_mode = 0
+wan_device = eth1
+lan_device = eth0
+default_if = LAN2
+lan1_device = 
+lan2_device = 
+

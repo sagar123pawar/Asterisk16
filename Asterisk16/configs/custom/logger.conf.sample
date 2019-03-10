@@ -1,0 +1,7 @@
+
+[general]
+dateformat=%F %T:%6q
+
+[logfiles]
+console => notice,warning,error,debug,verbose,dtmf,fax,security
+;messages => notice,warning,error

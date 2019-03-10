@@ -1,0 +1,117 @@
+var.server_root = "/app/asterisk/var/lib/asterisk/static-http"
+var.state_dir   = "/app/asterisk/var/run"
+var.home_dir    = "/app/asterisk/var/lib/lighttpd"
+var.conf_dir    = "/app/asterisk/etc/lighttpd"
+var.vhosts_dir  = server_root + "/vhosts"
+var.cache_dir   = "/app/asterisk/var/cache/lighttpd"
+var.socket_dir  = home_dir + "/sockets"
+server.document-root = server_root
+server.pid-file = state_dir + "/lighttpd-cdr.pid"
+server.event-handler = "linux-sysepoll"
+server.network-backend = "writev"
+server.max-fds = 2048
+server.stat-cache-engine = "simple"
+server.max-connections = 1024
+server.max-request-size = 102400
+index-file.names += (
+"index.xhtml", "index.html", "index.htm", "default.htm", "index.php"
+)
+url.access-deny             = ( "~", ".inc" )
+$HTTP["url"] =~ "\.pdf$" {
+server.range-requests = "disable"
+}
+static-file.exclude-extensions = ( ".php", ".pl", ".fcgi", ".scgi" )
+include "conf.d/mime.conf"
+include "conf.d/dirlisting.conf"
+server.follow-symlink = "enable"
+server.upload-dirs = ( "/update" )
+#ssl.ca-file = ""
+static-file.etags = "enable"
+etag.use-mtime = "enable"
+server.use-ipv6 = "disable"
+server.bind = "0.0.0.0"
+server.port = "8443"
+ssl.engine = "enable"
+ssl.pemfile = "/cfg/etc/asterisk_new/tls/server.pem"
+ssl.use-sslv2 = "disable"
+ssl.use-sslv3 = "disable"
+########################modules.conf################################
+server.modules += (
+    "mod_access",
+    "mod_alias",
+    "mod_auth",
+    "mod_evasive",
+    "mod_redirect",
+    "mod_rewrite",
+    "mod_setenv",
+    "mod_usertrack",
+    "mod_openssl",
+    "mod_proxy"
+)
+########################fcgi.conf################################
+server.modules += ("mod_fastcgi")
+fastcgi.server = (
+"/cdrapi" =>
+("new-fcgi" =>
+(
+"socket" => "/tmp/cdrapi.socket",
+"bin-path" => "/app/asterisk/bin/cdrapi",
+"max-procs" => 1,
+"broken-scriptfilename" => "enable",
+"allow-x-send-file" => "enable",
+"check-local" => "disable",
+)
+),
+"/recapi" =>
+("new-fcgi" =>
+(
+"socket" => "/tmp/cdrapi.socket",
+"bin-path" => "/app/asterisk/bin/cdrapi",
+"max-procs" => 1,
+"broken-scriptfilename" => "enable",
+"allow-x-send-file" => "enable",
+"check-local" => "disable",
+)
+),
+"/pmsapi" =>
+("new-fcgi" =>
+(
+"socket" => "/tmp/cdrapi.socket",
+"bin-path" => "/app/asterisk/bin/cdrapi",
+"max-procs" => 1,
+"broken-scriptfilename" => "enable",
+"allow-x-send-file" => "enable",
+"check-local" => "disable",
+)
+),
+)
+########################auth.conf################################
+auth.backend = "htdigest"
+auth.backend.htdigest.userfile = "/app/asterisk/etc/lighttpd/lighttpd.user"
+auth.require = (
+"/cdrapi" =>
+(
+"method" => "digest",
+"realm" => "passwd",
+"require" => "valid-user",
+),
+"/recapi" =>
+(
+"method" => "digest",
+"realm" => "passwd",
+"require" => "valid-user",
+),
+"/pmsapi" =>
+(
+"method" => "digest",
+"realm" => "passwd",
+"require" => "valid-user",
+),
+)
+$HTTP["remoteip"] != ""{
+    url.access-deny = ("")
+}
+proxy.replace-http-host = "enable"
+$HTTP["url"] =~ "^/vvmapi/*$" {
+    proxy.server = ( "" => ( ( "host" => "127.0.0.1", "port" => "8439" ) ) )
+}

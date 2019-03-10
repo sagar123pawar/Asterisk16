@@ -1,0 +1,4 @@
+[default]
+codec=ulaw
+flags=register,heartbeat
+

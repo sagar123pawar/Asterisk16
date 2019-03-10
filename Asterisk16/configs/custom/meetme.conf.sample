@@ -1,0 +1,6 @@
+[general]
+maxrooms = 3
+maxmembers = 25
+
+[rooms]
+

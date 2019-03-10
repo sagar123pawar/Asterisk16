@@ -1,0 +1,8 @@
+;!
+;! Automatically generated configuration file
+;! Filename: gtalk.conf (/usr/local/asterisk/etc/asterisk/gtalk.conf)
+;! Generator: Manager
+;! Creation Date: Mon May 21 15:27:56 2012
+;!
+[general]
+allowguest = no

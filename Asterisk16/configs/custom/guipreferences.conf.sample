@@ -1,0 +1,30 @@
+;!
+;! Automatically generated configuration file
+;! Filename: guipreferences.conf (/app/asterisk/etc/asterisk/guipreferences.conf)
+;! Generator: Manager
+;! Creation Date: Mon Jan  4 10:08:46 2010
+;!
+[general]
+ue_start = 5000
+ue_end = 6299
+mm_start = 6300
+mm_end = 6399
+vme_start = 7000
+vme_end = 7100
+rge_start = 6400
+rge_end = 6499
+qe_start = 6500
+qe_end = 6599
+vmg_start = 6600
+vmg_end = 6699
+disable_extension_ranges = no
+config_upgraded = yes
+default_dialplan = from-internall
+rand_password = yes
+rg_maxnumber = 100
+rg_maxmember = 16 
+vmg_maxmember = 16
+vmg_maxnumber = 50
+qe_maxnumber = 10
+qe_maxmember = 16 
+failover_trunk_max = 3

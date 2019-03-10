@@ -1,0 +1,165 @@
+[general]
+
+[default_user]
+type = user
+talk_detection_events = no
+dsp_talking_threshold = 128
+dsp_silence_threshold = 2500
+
+[default_bridge]
+type = bridge
+language = zh
+
+[seamless_transfer_user]
+type = user
+quiet = yes
+announce_user_count = no
+announce_user_count_all = no
+announce_only_user = no
+announce_join_leave = no
+announce_join_leave_review = no
+
+[sample_user_menu]
+type = menu
+* = playback_and_continue(conf-usermenu)
+*1 = toggle_mute
+1 = toggle_mute
+*4 = decrease_listening_volume
+4 = decrease_listening_volume
+*6 = increase_listening_volume
+6 = increase_listening_volume
+*7 = decrease_talking_volume
+7 = decrease_talking_volume
+*8 = leave_conference
+8 = leave_conference
+*9 = increase_talking_volume
+9 = increase_talking_volume
+
+[sample_admin_menu]
+type = menu
+* = playback_and_continue(conf-adminmenu)
+*1 = toggle_mute
+1 = toggle_mute
+*2 = admin_toggle_conference_lock
+2 = admin_toggle_conference_lock
+*3 = admin_kick_last
+3 = admin_kick_last
+*4 = decrease_listening_volume
+4 = decrease_listening_volume
+*6 = increase_listening_volume
+6 = increase_listening_volume
+*7 = decrease_talking_volume
+7 = decrease_talking_volume
+*8 = no_op
+8 = no_op
+*9 = increase_talking_volume
+9 = increase_talking_volume
+
+[ucm_user_menu]
+type = menu
+* = no_op
+*0 = dialplan_exec(conf-tools,0,1)
+0 = dialplan_exec(conf-tools,0,1)
+*1 = dialplan_exec(conf-tools,1,1)
+1 = dialplan_exec(conf-tools,1,1)
+*2 = dialplan_exec(conf-tools,2,1)
+2 = dialplan_exec(conf-tools,2,1)
+*3 = dialplan_exec(conf-tools,3,1)
+3 = dialplan_exec(conf-tools,3,1)
+*4 = no_op
+4 = no_op
+*5 = no_op
+5 = no_op
+*6 = no_op
+6 = no_op
+*7 = no_op
+7 = no_op
+*8 = no_op
+8 = no_op
+*9 = no_op
+9 = no_op
+
+[ucm_UserCallerMenu]
+type = menu
+* = playback_and_continue(conf-usermenu)
+*0 = no_op
+*1 = toggle_mute
+*2 = no_op
+*3 = no_op
+*4 = decrease_listening_volume
+*5 = no_op
+*6 = increase_listening_volume
+*7 = decrease_talking_volume
+*8 = no_op
+*9 = increase_talking_volume
+
+[ucm_AdminCallerMenu]
+type = menu
+* = playback_and_continue(conf-adminmenu)
+*0 = no_op
+*1 = toggle_mute
+*2 = admin_toggle_conference_lock
+*3 = admin_kick_last
+*4 = decrease_listening_volume
+*5 = no_op
+*6 = increase_listening_volume
+*7 = decrease_talking_volume
+*8 = playback_and_continue(conf-adminmenu-menu8)
+*9 = increase_talking_volume
+*81 = participant_count
+*82 = admin_kick_all_non_admin
+*83 = admin_toggle_mute_participants
+*84 = admin_toggle_record
+*88 = no_op
+
+[ucm_UserInviteMenu]
+type = menu
+0 = dialplan_exec(conf-tools,0,1)
+1 = dialplan_exec(conf-tools,1,1)
+2 = dialplan_exec(conf-tools,2,1)
+3 = admin_kick_mcbs
+
+[ucm_UserCallerMenu_UserInviteMenu]
+type = menu
+* = playback_and_continue(conf-usermenu)
+*0 = no_op
+*1 = toggle_mute
+*2 = no_op
+*3 = no_op
+*4 = decrease_listening_volume
+*5 = no_op
+*6 = increase_listening_volume
+*7 = decrease_talking_volume
+*8 = no_op
+*9 = increase_talking_volume
+0 = dialplan_exec(conf-tools,0,1)
+1 = dialplan_exec(conf-tools,1,1)
+2 = dialplan_exec(conf-tools,2,1)
+3 = admin_kick_mcbs
+
+[ucm_AdminCallerMenu_UserInviteMenu]
+type = menu
+* = playback_and_continue(conf-adminmenu-18-no5)
+*0 = no_op
+*1 = toggle_mute
+*2 = admin_toggle_conference_lock
+*3 = admin_kick_last
+*4 = decrease_listening_volume
+*5 = no_op
+*6 = increase_listening_volume
+*7 = decrease_talking_volume
+*8 = playback_and_continue(conf-adminmenu-menu8)
+*9 = increase_talking_volume
+*81 = participant_count
+*82 = admin_kick_non_admin_users
+*83 = admin_toggle_mute_participants
+*84 = admin_toggle_record
+*88 = no_op
+0 = dialplan_exec(conf-tools,0,1)
+1 = dialplan_exec(conf-tools,1,1)
+2 = dialplan_exec(conf-tools,2,1)
+3 = admin_kick_mcbs
+
+[seamless_transfer_menu]
+type = menu
+

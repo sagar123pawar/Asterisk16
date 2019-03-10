@@ -1,0 +1,27 @@
+[DEFAULT]
+ignoreip = 127.0.0.1/8 ::1
+bantime = 600
+findtime = 600
+maxretry = 5
+backend = auto
+usedns = warn
+ignorecommand =
+logencoding = auto
+[asterisk-udp]
+enabled = false
+filter = asterisk-udp
+action = iptables-multiport[name=asterisk-udp, port="5060,5061", protocol=udp, chain="INPUT", actname=iptables-multiport-udp]
+logpath = /var/log/syslog.tmp
+maxretry = 5
+[asterisk-tcp]
+enabled = false
+filter = asterisk-tcp
+action = iptables-multiport[name=asterisk-tcp, port="5060,5061", protocol=tcp, chain="INPUT", actname=iptables-multiport-tcp]
+logpath = /var/log/syslog.tmp
+maxretry = 5
+[login-attack-defense-tcp]
+enabled = false
+filter = login-attack-defense
+action = iptables-multiport[name=login-attack-defense-tcp, port="8089", protocol=tcp, chain="INPUT", actname=iptables-multiport-tcp]
+logpath = /var/log/syslog.tmp
+maxretry = 5

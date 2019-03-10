@@ -1,0 +1,5 @@
+
+[general]
+
+#include "../dahdi/system.conf"
+

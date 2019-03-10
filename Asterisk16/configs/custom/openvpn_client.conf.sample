@@ -1,0 +1,15 @@
+
+client
+dev tun0
+proto tcp 
+remote 172.16.0.193 1194
+resolv-retry infinite
+nobind
+persist-key
+persist-tun
+ca /cfg/etc/openvpn/ca.crt
+cert /cfg/etc/openvpn/client.crt
+key /cfg/etc/openvpn/client.key
+cipher des-ede3-cbc
+comp-lzo
+verb 0

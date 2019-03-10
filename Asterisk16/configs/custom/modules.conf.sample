@@ -1,0 +1,15 @@
+[modules]
+autoload=yes
+noload => pbx_gtkconsole.so
+preload => pbx_config.so
+load => res_musiconhold.so
+noload => chan_sip.so
+noload => chan_alsa.so
+noload => chan_console.so
+noload => codec_g726.so
+noload => codec_ilbc.so
+noload => codec_speex.so
+noload => cdr_csv.so
+noload => res_clialiases.so
+noload => res_phoneprov.so
+noload => chan_mgcp.so

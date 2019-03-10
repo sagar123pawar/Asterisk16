@@ -1,0 +1,20 @@
+[general]
+ast_format_ilbc = 97
+ast_format_h264 = 99
+ast_format_h263_plus = 100,103
+ast_rtp_dtmf = 101
+ast_format_g726 = 2
+ast_format_g726_aal2 = 112
+option_g726_compatible_g721 = yes
+ast_format_main_video_fec = 120
+ast_format_slides_video_fec = 120
+ast_format_audio_fec = 120
+ast_format_main_video_red = 122
+ast_format_slides_video_red = 122
+ast_format_audio_red = 122
+ast_format_fecc = 125
+ast_format_vp8 = 108
+ast_format_opus = 123
+ast_format_h265 = 114
+ast_format_rtx = 124
+

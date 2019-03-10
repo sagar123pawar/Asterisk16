@@ -1,0 +1,10 @@
+option dhcp6.name-servers 2001:4860:4860::8888,2001:4860:4860::8844;
+default-lease-time 43200;
+preferred-lifetime 43200;
+option dhcp-renewal-time 21600;
+option dhcp-rebinding-time 37800;
+option dhcp6.rapid-commit;
+subnet6 2001:db8:2:2::/64 {
+        range6 2001:db8:2:2::3000 2001:db8:2:2::4000;
+}
+

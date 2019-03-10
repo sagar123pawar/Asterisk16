@@ -1,0 +1,9 @@
+[general]
+initial_silence = 2500		; Maximum silence duration before the greeting.
+greeting = 1500			; Maximum length of a greeting. If exceeded then MACHINE.
+after_greeting_silence = 800	; Silence after detecting a greeting.
+total_analysis_time = 5000	; Maximum time allowed for the algorithm to decide
+min_word_length = 100		; Minimum duration of Voice to considered as a word
+between_words_silence = 50	; Minimum duration of silence after a word to consider
+maximum_number_of_words = 3	; Maximum number of words in the greeting.
+silence_threshold = 256

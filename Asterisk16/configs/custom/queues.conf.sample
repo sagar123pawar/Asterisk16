@@ -1,0 +1,4 @@
+[general]
+persistentmembers = yes
+monitor-type = MixMonitor
+#include queues_additional.conf

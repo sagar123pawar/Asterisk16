@@ -1,0 +1,10 @@
+[general]
+stunaddr = 
+turnaddr = 
+turnusername = 
+turnpassword = 
+rtptimeout = 90
+loglevel = 4
+rtpstart = 10000
+rtpend = 20000
+

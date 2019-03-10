@@ -1,0 +1,16 @@
+[general]
+atxfernoanswertimeout = 600
+featuredigittimeout = 1000
+pickupexten = *8
+atxferabort = 
+atxfercomplete = 
+atxferthreeway = 
+atxferswap = 
+
+[featuremap]
+blindxfer = #1
+disconnect = *0
+atxfer = *2
+parkcall = #72
+automixmon = *3
+

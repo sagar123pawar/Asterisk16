@@ -1,0 +1,12 @@
+[general]
+mcm_enable = 1
+address = 127.0.0.1
+port = 5062
+outbound_prefix = 6300
+rtx_flag = 0
+fec_flag = 0
+nack_flag = 0
+talk_detection_enable = 0
+talking_threshold = 128
+silence_threshold = 2500
+

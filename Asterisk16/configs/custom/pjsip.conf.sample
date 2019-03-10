@@ -1,0 +1,20 @@
+[global]
+debug=yes
+
+[transport-udp]
+type = transport
+protocol = udp
+bind = 0.0.0.0:6000
+
+[transport-tls]
+type=transport
+protocol=tls
+bind=0.0.0.0:5066
+cert_file=/opt/asterisk/etc/asterisk/keys/asterisk.crt
+priv_key_file=/opt/asterisk/etc/asterisk/keys/asterisk.key
+method=tlsv1_2
+
+#include pjsip_endpoint.conf
+#include pjsip_aor.conf
+#include pjsip_auth.conf
+

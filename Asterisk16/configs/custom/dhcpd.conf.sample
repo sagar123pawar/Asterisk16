@@ -1,0 +1,10 @@
+ddns-update-style none;
+option domain-name-servers 8.8.8.8, 208.67.222.222;
+max-lease-time 604800;
+default-lease-time 43200;
+authoritative;
+subnet 192.168.2.0 netmask 255.255.255.0 {
+    option routers 192.168.2.1;
+    option tftp-server-name "https://192.168.2.1:8089/zccgi/";
+    range 192.168.2.100 192.168.2.254;
+}

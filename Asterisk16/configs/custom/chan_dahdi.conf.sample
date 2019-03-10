@@ -1,0 +1,29 @@
+[echocoefs]
+#include chan_dahdi_echocoefs.conf
+
+
+[channels]
+usecallerid = yes
+callwaiting = yes
+usecallingpres = yes
+callwaitingcallerid = yes
+threewaycalling = yes
+transfer = yes
+canpark = yes
+cancallforward = yes
+callreturn = yes
+echocancel = yes
+echocancelwhenbridged = yes
+ignore_failed_channels = true
+buffers = 32,half
+faxbuffers = 32,half
+reportalarms = none
+#include chan_dahdi_digital_channels.conf
+#include chan_dahdi_additional.conf
+#include chan_dahdi_digital_trunks.conf
+
+
+[general]
+faxcontext = faxcontext
+
+

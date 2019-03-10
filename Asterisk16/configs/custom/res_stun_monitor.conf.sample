@@ -1,0 +1,4 @@
+[general]
+stunaddr = stun.ipvideotalk.com
+stunrefresh = 30
+

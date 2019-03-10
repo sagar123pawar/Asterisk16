@@ -26,7 +26,7 @@
  */
 
 /*** MODULEINFO
-	<defaultenabled>no</defaultenabled>
+	<defaultenabled>yes</defaultenabled>
 	<support_level>deprecated</support_level>
 	<replacement>app_stack (GoSub)</replacement>
  ***/
