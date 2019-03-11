@@ -475,7 +475,7 @@ PJ_DECL(const char *) pjsip_tsx_state_str(pjsip_tsx_state_e state);
 PJ_DECL(const char *) pjsip_role_name(pjsip_role_e role);
 
 #ifdef GRANDSTREAM_NETWORKS
-typedef void (*pjsip_tsx_layer_callback)(int fd, const char *tsx_name, const char *last_tx_tsx_info, int status_code, const char *state);
+typedef void (*pjsip_tsx_layer_callback)(int fd, pjsip_transaction *tsx);
 
 /*
  * Dump2 transaction layer.

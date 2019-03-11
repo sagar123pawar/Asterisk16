@@ -1000,7 +1000,6 @@ PJ_DEF(void) pjsip_ua_dump(pj_bool_t detail)
 PJ_DEF(void) pjsip_ua_dump2(int fd, pjsip_ua_dialog callback)
 {
 	pj_hash_iterator_t itbuf, *it;
-	char dlginfo[128];
 
 	pj_mutex_lock(mod_ua.mutex);
 	if (callback && pj_hash_count(mod_ua.dlg_table)) {
@@ -1008,7 +1007,6 @@ PJ_DEF(void) pjsip_ua_dump2(int fd, pjsip_ua_dialog callback)
 		for (; it != NULL; it = pj_hash_next(mod_ua.dlg_table, it))  {
 			struct dlg_set *dlg_set;
 			pjsip_dialog *dlg;
-			const char *title;
 
 			dlg_set = (struct dlg_set*) pj_hash_this(mod_ua.dlg_table, it);
 			if (!dlg_set || pj_list_empty(&dlg_set->dlg_list)) continue;
@@ -1024,7 +1022,7 @@ PJ_DEF(void) pjsip_ua_dump2(int fd, pjsip_ua_dialog callback)
 				userinfo[len] = '\0';
 			}
 
-			callback(fd, dlg, "%20s %20s %5s %5s %50s",
+			callback(fd, dlg, "%18s %18s %5s %5s %50s",
 				dlg->obj_name, dlg->pool->obj_name, (dlg->role == PJSIP_ROLE_UAC) ? "UAC" : "UAS",
 				(PJSIP_DIALOG_STATE_NULL == dlg->state) ? "null" : "est",
 				!strncasecmp(userinfo, "Call-ID: ", strlen("Call-ID: ")) ? userinfo + strlen("Call-ID: ") : userinfo);

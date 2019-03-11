@@ -963,8 +963,7 @@ PJ_DEF(void) pjsip_tsx_layer_dump2(int fd, pjsip_tsx_layer_callback tsx_callback
 	 while (it != NULL) {
 		 pjsip_transaction *tsx = (pjsip_transaction*)pj_hash_this(mod_tsx_layer.htable,it);
 		 if (tsx_callback) {
-			tsx_callback(fd, tsx->obj_name, (tsx->last_tx ? pjsip_tx_data_get_info(tsx->last_tx): "none"),
-				tsx->status_code, pjsip_tsx_state_str(tsx->state));
+			tsx_callback(fd, tsx);
 		 }
 		 it = pj_hash_next(mod_tsx_layer.htable, it);
 	}

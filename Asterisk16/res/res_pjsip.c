@@ -3169,9 +3169,13 @@ static char *cli_show_settings(struct ast_cli_entry *e, int cmd, struct ast_cli_
 }
 
 #ifdef GRANDSTREAM_NETWORKS
-static void cli_transaction(int fd, const char *tsx_name, const char *last_tx_tsx_info, int status_code, const char *state)
+static void cli_transaction(int fd, pjsip_transaction *tsx)
 {
-	ast_cli(fd, "%20s %80s %20d %20s\n", tsx_name, last_tx_tsx_info, status_code, state);
+	ast_cli(fd, "%20s %20s %50s %20d %20s\n",
+		tsx->obj_name, tsx->pool->obj_name,
+		(tsx->last_tx ? pjsip_tx_data_get_info(tsx->last_tx): "none"),
+		tsx->status_code,
+		pjsip_tsx_state_str(tsx->state));
 }
 
 static char *cli_show_transaction(struct ast_cli_entry *e, int cmd, struct ast_cli_args *a)
@@ -3213,7 +3217,7 @@ static void cli_dialog(int fd, pjsip_dialog *dlg, const char *fmt, ...)
 
 	inv = pjsip_dlg_get_inv_session(dlg);
 	if (inv) {
-		ast_cli(fd, "%s %20s %20s %15s %5d %5d %10p[%2d]\n", str_dialog, inv->obj_name, inv->pool->obj_name,
+		ast_cli(fd, "%s %18s %18s %15s %5d %5d %18p[%2d]\n", str_dialog, inv->obj_name, inv->pool->obj_name,
 			pjsip_inv_state_name(inv->state), dlg->sess_count, dlg->tsx_count, dlgsess, dlgsess ? ao2_ref(dlgsess, 0) : -1);
 	} else {
 		ast_cli(fd, "%s\n", str_dialog);
@@ -3236,7 +3240,7 @@ static char *cli_show_dialog(struct ast_cli_entry *e, int cmd, struct ast_cli_ar
 	}
 
 	ast_cli(a->fd, "Dialog info:\n");
-	ast_cli(a->fd, "%20s %20s %5s %5s %50s %20s %20s %15s %5s %5s %12s\n", "DlgName", "Cachpool", "Role",
+	ast_cli(a->fd, "%18s %18s %5s %5s %50s %18s %18s %15s %5s %5s %18s\n", "DlgName", "Cachpool", "Role",
 		"State", "CallerID", "InvName", "Cachpool", "State", "sess", "tsx", "session");
 	pjsip_ua_dump2(a->fd, cli_dialog);
 	ast_cli(a->fd, "\nTotal %d dialog!\n", pjsip_ua_get_dlg_set_count());
