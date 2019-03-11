@@ -1005,6 +1005,9 @@ static pj_status_t tls_destroy(pjsip_transport *transport,
     if (tls->close_reason == 0)
 	tls->close_reason = reason;
 
+#ifdef GRANDSTREAM_NETWORKS
+	PJ_LOG(3, ("", "Destroy TLS transport!"));
+#endif
     if (tls->is_registered) {
 	tls->is_registered = PJ_FALSE;
 	pjsip_transport_destroy(transport);

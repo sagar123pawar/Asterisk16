@@ -39,7 +39,7 @@
 
 #define THIS_FILE    "sip_transport.c"
 
-#if 0
+#if 1
 #   define TRACE_(x)	PJ_LOG(5,x)
 
 static const char *addr_string(const pj_sockaddr_t *addr)
@@ -1013,6 +1013,9 @@ static void transport_idle_callback(pj_timer_heap_t *timer_heap,
     PJ_UNUSED_ARG(timer_heap);
 
     entry->id = PJ_FALSE;
+#ifdef GRANDSTREAM_NETWORKS
+	PJ_LOG(3, ("", "pjsip_transport_destroy enter!"));
+#endif
     pjsip_transport_destroy(tp);
 }
 
@@ -1275,6 +1278,9 @@ PJ_DEF(pj_status_t) pjsip_transport_shutdown2(pjsip_transport *tp,
 	tp->is_shutdown = PJ_TRUE;
 
     /* Notify application of transport shutdown */
+#ifdef GRANDSTREAM_NETWORKS
+	PJ_LOG(3, ("", "Notify application of transport shutdown!"));
+#endif
     state_cb = pjsip_tpmgr_get_state_cb(tp->tpmgr);
     if (state_cb) {
 	pjsip_transport_state_info state_info;
@@ -1309,6 +1315,9 @@ PJ_DEF(pj_status_t) pjsip_transport_destroy( pjsip_transport *tp)
     PJ_ASSERT_RETURN(pj_atomic_get(tp->ref_cnt) == 0, PJSIP_EBUSY);
 
     /* Notify application of transport destroy */
+#ifdef GRANDSTREAM_NETWORKS
+	PJ_LOG(3, ("", "Notify application of transport destroy!"));
+#endif
     state_cb = pjsip_tpmgr_get_state_cb(tp->tpmgr);
     if (state_cb) {
 	pjsip_transport_state_info state_info;

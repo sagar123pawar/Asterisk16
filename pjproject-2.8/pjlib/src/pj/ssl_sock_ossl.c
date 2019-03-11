@@ -1748,6 +1748,9 @@ static pj_bool_t on_handshake_complete(pj_ssl_sock_t *ssock,
 	    return PJ_FALSE;
 	}
 	/* Notify application the newly accepted SSL socket */
+#ifdef GRANDSTREAM_NETWORKS
+	PJ_LOG(3, ("", "Notify application the newly accepted SSL socket!"));
+#endif
 	if (ssock->param.cb.on_accept_complete) {
 	    pj_bool_t ret;
 	    ret = (*ssock->param.cb.on_accept_complete)
@@ -2417,6 +2420,9 @@ static pj_bool_t asock_on_accept_complete (pj_activesock_t *asock,
     pj_sockaddr_cp(&ssock->rem_addr, src_addr);
 
     /* Create SSL context */
+#ifdef GRANDSTREAM_NETWORKS
+	PJ_LOG(5, ("", "Create SSL context"));
+#endif
     status = create_ssl(ssock);
     if (status != PJ_SUCCESS)
 	goto on_return;
@@ -2509,6 +2515,9 @@ static pj_bool_t asock_on_accept_complete (pj_activesock_t *asock,
 
 on_return:
     if (ssock && status != PJ_EPENDING) {
+#ifdef GRANDSTREAM_NETWORKS
+	PJ_LOG(3, ("", "on_handshake_complete enter!"));
+#endif
 	on_handshake_complete(ssock, status);
     }
 

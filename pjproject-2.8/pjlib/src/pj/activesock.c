@@ -874,6 +874,10 @@ static void ioqueue_on_accept_complete(pj_ioqueue_key_t *key,
 	    asock->last_err = status;
 	}
 
+#ifdef GRANDSTREAM_NETWORKS
+	PJ_LOG(3, ("", "ioqueue_on_accept_complete enter, [%p], [%p]", asock->cb.on_accept_complete2, asock->cb.on_accept_complete));
+#endif
+
 	if (status==PJ_SUCCESS && (asock->cb.on_accept_complete2 || 
 				   asock->cb.on_accept_complete)) {
 	    pj_bool_t ret;
