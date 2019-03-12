@@ -1,15 +1,16 @@
+
 [global]
-debug=yes
+debug = yes
 
 [transport-udp]
 type = transport
 protocol = udp
-bind = 0.0.0.0:6000
+bind = 0.0.0.0:50600
 
 [transport-tls]
 type=transport
 protocol=tls
-bind=0.0.0.0:5066
+bind=0.0.0.0:50610
 cert_file=/opt/asterisk/etc/asterisk/keys/asterisk.crt
 priv_key_file=/opt/asterisk/etc/asterisk/keys/asterisk.key
 method=tlsv1_2
