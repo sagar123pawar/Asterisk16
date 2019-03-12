@@ -1048,7 +1048,9 @@ static pj_status_t tsx_create( pjsip_module *tsx_user,
     tsx->timeout_timer.cb = &tsx_timer_callback;
 
 #ifdef GRANDSTREAM_NETWORKS
-	PJ_LOG(4, (tsx->obj_name, "Create '%s' transaction, init retransmit and timeout timer!", tsx_user->name.ptr));
+	if (tsx_user) {
+		PJ_LOG(4, (tsx->obj_name, "Create '%s' transaction, init retransmit and timeout timer!", tsx_user->name.ptr));
+	}
 #endif
 
     if (grp_lock) {
