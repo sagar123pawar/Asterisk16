@@ -1046,7 +1046,11 @@ static pj_status_t tsx_create( pjsip_module *tsx_user,
     tsx->timeout_timer.id = TIMER_INACTIVE;
     tsx->timeout_timer.user_data = tsx;
     tsx->timeout_timer.cb = &tsx_timer_callback;
-    
+
+#ifdef GRANDSTREAM_NETWORKS
+	PJ_LOG(4, (tsx->obj_name, "Create '%s' transaction, init retransmit and timeout timer!", tsx_user->name.ptr));
+#endif
+
     if (grp_lock) {
 	tsx->grp_lock = grp_lock;
         
@@ -2486,6 +2490,12 @@ static pj_status_t tsx_on_state_null( pjsip_transaction *tsx,
 	tsx_cancel_timer( tsx, &tsx->timeout_timer );
 	tsx_schedule_timer( tsx, &tsx->timeout_timer, &timeout_timer_val,
 	                    TIMEOUT_TIMER);
+#ifdef GRANDSTREAM_NETWORKS
+	PJ_LOG(3, (tsx->obj_name, "%s transaction start Timer %s, cancel retransmission request, set transaction state to '%s'!",
+		(PJSIP_INVITE_METHOD == tsx->method.id) ? "Invite" : "Non-invite",
+		(PJSIP_INVITE_METHOD == tsx->method.id) ? "B" : "F",
+		state_str[PJSIP_TSX_STATE_TERMINATED]));
+#endif
 	unlock_timer(tsx);
 
 	/* Start Timer A (or timer E) for retransmission only if unreliable 
@@ -2496,6 +2506,11 @@ static pj_status_t tsx_on_state_null( pjsip_transaction *tsx,
 	    if (tsx->transport_flag & TSX_HAS_PENDING_TRANSPORT) {
 		tsx->transport_flag |= TSX_HAS_PENDING_RESCHED;
 	    } else {
+#ifdef GRANDSTREAM_NETWORKS
+		PJ_LOG(3, (tsx->obj_name, "%s transaction start Timer %s for retransmission request!",
+			(PJSIP_INVITE_METHOD == tsx->method.id) ? "Invite" : "Non-invite",
+			(PJSIP_INVITE_METHOD == tsx->method.id) ? "A" : "E"));
+#endif
 		tsx_schedule_timer(tsx, &tsx->retransmit_timer,
 		                   &t1_timer_val, RETRANSMIT_TIMER);
 	    }
@@ -2645,7 +2660,7 @@ static pj_status_t tsx_on_state_trying( pjsip_transaction *tsx,
     pj_assert(tsx->role == PJSIP_ROLE_UAS);
 
 #ifdef GRANDSTREAM_NETWORKS
-	PJ_LOG(5,(tsx->obj_name, "Transaction on 'trying' state"));
+	PJ_LOG(5,(tsx->obj_name, "Transaction on '%s' state", state_str[tsx->state]));
 #endif
 
     /* Better be transmission of response message.

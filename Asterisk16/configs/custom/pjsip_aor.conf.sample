@@ -4,794 +4,794 @@ type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4000
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4002]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4002
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4004]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4004
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4006]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4006
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4008]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4008
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4010]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4010
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4012]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4012
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4014]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4014
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4016]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4016
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4018]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4018
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4020]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4020
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4022]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4022
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4024]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4024
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4026]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4026
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4028]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4028
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4030]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4030
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4032]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4032
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4034]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4034
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4036]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4036
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4038]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4038
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4040]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4040
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4042]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4042
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4044]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4044
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4046]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4046
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4048]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4048
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4050]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4050
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4052]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4052
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4054]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4054
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4056]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4056
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4058]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4058
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4060]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4060
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4062]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4062
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4064]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4064
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4066]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4066
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4068]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4068
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4070]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4070
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4072]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4072
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4074]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4074
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4076]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4076
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4078]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4078
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4080]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4080
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4082]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4082
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4084]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4084
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4086]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4086
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4088]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4088
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4090]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4090
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4092]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4092
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4094]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4094
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4096]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4096
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4098]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4098
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4100]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4100
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4102]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4102
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4104]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4104
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4106]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4106
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4108]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4108
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4110]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4110
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4112]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4112
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4114]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4114
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4116]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4116
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4118]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4118
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4120]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4120
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4122]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4122
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4124]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4124
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4126]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4126
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4128]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4128
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4130]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4130
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4132]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4132
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4134]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4134
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4136]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4136
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4138]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4138
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4140]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4140
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4142]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4142
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4144]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4144
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4146]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4146
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4148]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4148
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4150]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4150
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4152]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4152
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4154]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4154
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4156]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4156
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4158]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4158
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4160]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4160
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4162]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4162
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4164]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4164
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4166]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4166
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4168]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4168
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4170]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4170
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4172]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4172
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4174]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4174
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4176]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4176
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4178]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4178
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4180]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4180
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4182]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4182
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4184]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4184
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4186]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4186
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4188]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4188
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4190]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4190
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4192]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4192
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4194]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4194
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [4196]
 type = aor
 max_contacts = 1
 qualify_timeout = 0
 mailboxes = 4196
-maximum_expiration = 2
-minimum_expiration = 1
+maximum_expiration = 3600
+minimum_expiration = 90
 
 [trunk-tls]
 type = aor
-contact = sip:127.0.0.1:50610\;transport=TLS
+contact = sip:127.0.0.1\;transport=TLS
 qualify_timeout = 0

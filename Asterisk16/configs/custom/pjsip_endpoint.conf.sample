@@ -3169,7 +3169,7 @@ language = zh
 
 [trunk-tls]
 type = endpoint
-transport = transport-udp
+transport = transport-tls
 context = ext-did-7
 disallow = all
 allow = ulaw
@@ -3200,5 +3200,5 @@ language = zh
 
 [id_trunk_tls]
 type = identify
-endpoint = trunk_tls
-match = 192.168.129.8\;transport=TLS
+endpoint = trunk-tls
+match = 127.0.0.1\;transport=TLS

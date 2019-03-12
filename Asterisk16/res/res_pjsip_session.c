@@ -2511,6 +2511,9 @@ struct ast_sip_session *ast_sip_session_create_outgoing(struct ast_sip_endpoint 
 		pjsip_dlg_terminate(dlg);
 		return NULL;
 	}
+#ifdef GRANDSTREAM_NETWORKS
+	ast_log(LOG_NOTICE, "UAC inv_session[%p] created!\n", inv_session);
+#endif
 #if defined(HAVE_PJSIP_REPLACE_MEDIA_STREAM) || defined(PJMEDIA_SDP_NEG_ALLOW_MEDIA_CHANGE)
 	inv_session->sdp_neg_flags = PJMEDIA_SDP_NEG_ALLOW_MEDIA_CHANGE;
 #endif
