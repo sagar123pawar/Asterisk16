@@ -1989,6 +1989,9 @@ void pjsip_dlg_on_rx_response( pjsip_dialog *dlg, pjsip_rx_data *rdata )
 	if (!dlg->usage[i]->on_rx_response)
 	    continue;
 
+#ifdef GRANDSTREAM_NETWORKS
+	PJ_LOG(4, (dlg->obj_name, "Pass to dialog usages[%s]", dlg->usage[i]->name));
+#endif
 	processed = (*dlg->usage[i]->on_rx_response)(rdata);
 
 	if (processed)

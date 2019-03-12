@@ -4500,6 +4500,9 @@ static void inv_on_state_early( pjsip_inv_session *inv, pjsip_event *e)
 
 		/* if UAC, send ACK and move state to confirmed. */
 		if (tsx->role == PJSIP_ROLE_UAC) {
+#ifdef GRANDSTREAM_NETWORKS
+			PJ_LOG(3, (inv->obj_name, "send ACK and move state to confirmed."));
+#endif
 		    pj_assert(e->body.tsx_state.type == PJSIP_EVENT_RX_MSG);
 
 		    inv_send_ack(inv, e);

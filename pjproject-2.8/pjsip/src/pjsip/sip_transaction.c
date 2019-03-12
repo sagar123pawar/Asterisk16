@@ -1329,6 +1329,9 @@ static void tsx_set_state( pjsip_transaction *tsx,
 	lock_timer(tsx);
 	tsx_cancel_timer(tsx, &tsx->timeout_timer);
 	if ((flag & NO_SCHEDULE_HANDLER) == 0) {
+#ifdef GRANDSTREAM_NETWORKS
+		PJ_LOG(4, (tsx->obj_name, "Start timeout timer!"));
+#endif
 	    tsx_schedule_timer(tsx, &tsx->timeout_timer, &timeout,
 			       TIMEOUT_TIMER);
 	}
@@ -2493,7 +2496,7 @@ static pj_status_t tsx_on_state_null( pjsip_transaction *tsx,
 	tsx_schedule_timer( tsx, &tsx->timeout_timer, &timeout_timer_val,
 	                    TIMEOUT_TIMER);
 #ifdef GRANDSTREAM_NETWORKS
-	PJ_LOG(3, (tsx->obj_name, "%s transaction start Timer %s, cancel retransmission request, set transaction state to '%s'!",
+	PJ_LOG(3, (tsx->obj_name, "%s transaction start [Timer %s], cancel retransmission request, set transaction state to '%s'!",
 		(PJSIP_INVITE_METHOD == tsx->method.id) ? "Invite" : "Non-invite",
 		(PJSIP_INVITE_METHOD == tsx->method.id) ? "B" : "F",
 		state_str[PJSIP_TSX_STATE_TERMINATED]));
@@ -2509,7 +2512,7 @@ static pj_status_t tsx_on_state_null( pjsip_transaction *tsx,
 		tsx->transport_flag |= TSX_HAS_PENDING_RESCHED;
 	    } else {
 #ifdef GRANDSTREAM_NETWORKS
-		PJ_LOG(3, (tsx->obj_name, "%s transaction start Timer %s for retransmission request!",
+		PJ_LOG(3, (tsx->obj_name, "%s transaction start [Timer %s] for retransmission request!",
 			(PJSIP_INVITE_METHOD == tsx->method.id) ? "Invite" : "Non-invite",
 			(PJSIP_INVITE_METHOD == tsx->method.id) ? "A" : "E"));
 #endif
@@ -2595,6 +2598,11 @@ static pj_status_t tsx_on_state_calling( pjsip_transaction *tsx,
 	    /* Cancel retransmit timer (for non-INVITE transaction, the
 	     * retransmit timer will be rescheduled at T2.
 	     */
+#ifdef GRANDSTREAM_NETWORKS
+		PJ_LOG(4, (tsx->obj_name, "%s",
+			(PJSIP_INVITE_METHOD == tsx->method.id) ? "Invite transaction cancel retransmit timer"
+			: "Non-invite transaction rescheduled timer to T2"));
+#endif
 	    tsx_cancel_timer(tsx, &tsx->retransmit_timer);
 
 	    /* For provisional response, only cancel retransmit when this
@@ -3020,6 +3028,11 @@ static pj_status_t tsx_on_state_proceeding_uac(pjsip_transaction *tsx,
     } else if (PJSIP_IS_STATUS_IN_CLASS(tsx->status_code,200)) {
 
 	/* Stop timeout timer B/F. */
+#ifdef GRANDSTREAM_NETWORKS
+	PJ_LOG(4, (tsx->obj_name, "%s transaction stop timeout [timer %s]",
+		(PJSIP_INVITE_METHOD == tsx->method.id) ? "Invite" : "Non-invite",
+		(PJSIP_INVITE_METHOD == tsx->method.id) ? "B" : "F"));
+#endif
 	lock_timer(tsx);
 	tsx_cancel_timer( tsx, &tsx->timeout_timer );
 	unlock_timer(tsx);
