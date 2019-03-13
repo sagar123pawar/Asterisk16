@@ -125,6 +125,11 @@ typedef struct pj_timer_entry
      */
     pj_grp_lock_t *_grp_lock;
 
+#ifdef GRANDSTREAM_NETWORKS
+	const char *src_file;
+	int src_line;
+#endif
+
 #if PJ_TIMER_DEBUG
     const char	*src_file;
     int		 src_line;

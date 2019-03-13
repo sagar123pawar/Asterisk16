@@ -3137,7 +3137,7 @@ language = zh
 
 [4196]
 type = endpoint
-transport = transport-udp
+transport = transport-tls
 context = from-internal
 disallow = all
 allow = ulaw

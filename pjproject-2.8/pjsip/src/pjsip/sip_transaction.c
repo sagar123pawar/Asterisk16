@@ -138,6 +138,15 @@ static pj_time_val timeout_timer_val = { (64*PJSIP_T1_TIMEOUT)/1000,
 #define TIMEOUT_TIMER		2
 #define TRANSPORT_ERR_TIMER	3
 
+#ifdef GRANDSTREAM_NETWORKS
+static char *tsx_timer[] = {
+	"inactive",
+	"retransmit",
+	"timeout",
+	"transport error"
+};
+#endif
+
 /* Flags for tsx_set_state() */
 enum
 {
@@ -990,13 +999,32 @@ static void unlock_timer(pjsip_transaction *tsx)
 }
 
 /* Utility: schedule a timer */
+#ifdef GRANDSTREAM_NETWORKS
+static pj_status_t __tsx_schedule_timer(pjsip_transaction *tsx, pj_timer_entry *entry,
+	const pj_time_val *delay, int active_id, const char *file, int line);
+
+#define tsx_schedule_timer(tsx, entry, delay, active_id) \
+	__tsx_schedule_timer(tsx, entry, delay, active_id, __FILE__, __LINE__)
+
+static pj_status_t __tsx_schedule_timer(pjsip_transaction *tsx, pj_timer_entry *entry,
+	const pj_time_val *delay, int active_id, const char *file, int line)
+#else
 static pj_status_t tsx_schedule_timer(pjsip_transaction *tsx,
                                       pj_timer_entry *entry,
                                       const pj_time_val *delay,
                                       int active_id)
+#endif
 {
     pj_timer_heap_t *timer_heap = pjsip_endpt_get_timer_heap(tsx->endpt);
     pj_status_t status;
+
+#ifdef GRANDSTREAM_NETWORKS
+	entry->src_file = file;
+	entry->src_line=  line;
+
+	char *tmp_file = strrchr(file, '/');
+	PJ_LOG(4, (tsx->obj_name, "Startup a '%s' timer by [%s:%d]", tsx_timer[active_id], tmp_file ? ++tmp_file : file, line));
+#endif
 
     pj_assert(active_id != 0);
     status = pj_timer_heap_schedule_w_grp_lock(timer_heap, entry,
@@ -1007,9 +1035,28 @@ static pj_status_t tsx_schedule_timer(pjsip_transaction *tsx,
 }
 
 /* Utility: cancel a timer */
+#ifdef GRANDSTREAM_NETWORKS
+static int __tsx_cancel_timer(pjsip_transaction *tsx, pj_timer_entry *entry, const char *file, int line);
+
+#define tsx_cancel_timer(tsx, entry) __tsx_cancel_timer(tsx, entry, __FILE__, __LINE__)
+
+static int __tsx_cancel_timer(pjsip_transaction *tsx, pj_timer_entry *entry, const char *file, int line)
+#else
 static int tsx_cancel_timer(pjsip_transaction *tsx,
                             pj_timer_entry *entry)
+#endif
 {
+#ifdef GRANDSTREAM_NETWORKS
+	char *tmp_file = strrchr(file, '/');
+	char *tmp_file2 = NULL;
+	if (entry->src_file) {
+		tmp_file2 = strrchr(entry->src_file, '/');
+	}
+
+	PJ_LOG(4, (tsx->obj_name, "Cancel a '%s' timer by [%s:%d] starting, canceled by [%s:%d]!",
+		tsx_timer[entry->id], tmp_file2 ? ++tmp_file2 : entry->src_file, entry->src_line, tmp_file ? ++tmp_file : file, line));
+#endif
+
     pj_timer_heap_t *timer_heap = pjsip_endpt_get_timer_heap(tsx->endpt);
     return pj_timer_heap_cancel_if_active(timer_heap, entry, TIMER_INACTIVE);
 }
@@ -1107,6 +1154,7 @@ static pj_status_t tsx_shutdown( pjsip_transaction *tsx )
 	pjsip_tx_data_dec_ref( tsx->last_tx );
 	tsx->last_tx = NULL;
     }
+
     /* Cancel timeout timer. */
     tsx_cancel_timer(tsx, &tsx->timeout_timer);
 
@@ -1145,6 +1193,11 @@ static void tsx_timer_callback( pj_timer_heap_t *theap, pj_timer_entry *entry)
     pjsip_transaction *tsx = (pjsip_transaction*) entry->user_data;
 
     PJ_UNUSED_ARG(theap);
+
+#ifdef GRANDSTREAM_NETWORKS
+	char *tmp_file = strrchr(entry->src_file, '/');
+	PJ_LOG(4, (tsx->obj_name, "A timer timeout by [%s:%d] starting!", tmp_file ? ++tmp_file : entry->src_file, entry->src_line));
+#endif
 
     /* Just return if transaction is already destroyed (see also #2102). */
     if (tsx->state >= PJSIP_TSX_STATE_DESTROYED) {
@@ -1329,9 +1382,6 @@ static void tsx_set_state( pjsip_transaction *tsx,
 	lock_timer(tsx);
 	tsx_cancel_timer(tsx, &tsx->timeout_timer);
 	if ((flag & NO_SCHEDULE_HANDLER) == 0) {
-#ifdef GRANDSTREAM_NETWORKS
-		PJ_LOG(4, (tsx->obj_name, "Start timeout timer!"));
-#endif
 	    tsx_schedule_timer(tsx, &tsx->timeout_timer, &timeout,
 			       TIMEOUT_TIMER);
 	}
@@ -2495,12 +2545,6 @@ static pj_status_t tsx_on_state_null( pjsip_transaction *tsx,
 	tsx_cancel_timer( tsx, &tsx->timeout_timer );
 	tsx_schedule_timer( tsx, &tsx->timeout_timer, &timeout_timer_val,
 	                    TIMEOUT_TIMER);
-#ifdef GRANDSTREAM_NETWORKS
-	PJ_LOG(3, (tsx->obj_name, "%s transaction start [Timer %s], cancel retransmission request, set transaction state to '%s'!",
-		(PJSIP_INVITE_METHOD == tsx->method.id) ? "Invite" : "Non-invite",
-		(PJSIP_INVITE_METHOD == tsx->method.id) ? "B" : "F",
-		state_str[PJSIP_TSX_STATE_TERMINATED]));
-#endif
 	unlock_timer(tsx);
 
 	/* Start Timer A (or timer E) for retransmission only if unreliable 
@@ -2511,11 +2555,6 @@ static pj_status_t tsx_on_state_null( pjsip_transaction *tsx,
 	    if (tsx->transport_flag & TSX_HAS_PENDING_TRANSPORT) {
 		tsx->transport_flag |= TSX_HAS_PENDING_RESCHED;
 	    } else {
-#ifdef GRANDSTREAM_NETWORKS
-		PJ_LOG(3, (tsx->obj_name, "%s transaction start [Timer %s] for retransmission request!",
-			(PJSIP_INVITE_METHOD == tsx->method.id) ? "Invite" : "Non-invite",
-			(PJSIP_INVITE_METHOD == tsx->method.id) ? "A" : "E"));
-#endif
 		tsx_schedule_timer(tsx, &tsx->retransmit_timer,
 		                   &t1_timer_val, RETRANSMIT_TIMER);
 	    }
@@ -2587,7 +2626,6 @@ static pj_status_t tsx_on_state_calling( pjsip_transaction *tsx,
 	 */
 	if (code >= 200) {
 	    tsx_cancel_timer(tsx, &tsx->retransmit_timer);
-
 	    if (tsx->timeout_timer.id != 0) {
 		lock_timer(tsx);
 		tsx_cancel_timer(tsx, &tsx->timeout_timer);
@@ -2598,11 +2636,6 @@ static pj_status_t tsx_on_state_calling( pjsip_transaction *tsx,
 	    /* Cancel retransmit timer (for non-INVITE transaction, the
 	     * retransmit timer will be rescheduled at T2.
 	     */
-#ifdef GRANDSTREAM_NETWORKS
-		PJ_LOG(4, (tsx->obj_name, "%s",
-			(PJSIP_INVITE_METHOD == tsx->method.id) ? "Invite transaction cancel retransmit timer"
-			: "Non-invite transaction rescheduled timer to T2"));
-#endif
 	    tsx_cancel_timer(tsx, &tsx->retransmit_timer);
 
 	    /* For provisional response, only cancel retransmit when this
@@ -3028,11 +3061,6 @@ static pj_status_t tsx_on_state_proceeding_uac(pjsip_transaction *tsx,
     } else if (PJSIP_IS_STATUS_IN_CLASS(tsx->status_code,200)) {
 
 	/* Stop timeout timer B/F. */
-#ifdef GRANDSTREAM_NETWORKS
-	PJ_LOG(4, (tsx->obj_name, "%s transaction stop timeout [timer %s]",
-		(PJSIP_INVITE_METHOD == tsx->method.id) ? "Invite" : "Non-invite",
-		(PJSIP_INVITE_METHOD == tsx->method.id) ? "B" : "F"));
-#endif
 	lock_timer(tsx);
 	tsx_cancel_timer( tsx, &tsx->timeout_timer );
 	unlock_timer(tsx);
