@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE scenario SYSTEM "sipp.dtd">
+
+<scenario name="Basic Sipstone UAC">
+    <send retrans="500">
+        <![CDATA[
+            REGISTER sip:[field0]@[remote_ip]:[remote_port] SIP/2.0
+            Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+            From: [field0] <sip:[field0]@[remote_ip]:[remote_port]>;tag=[call_number]
+            To: [field0] <sip:[field0]@[remote_ip]:[remote_port]>
+            Call-ID: [call_id]
+            CSeq: 1 REGISTER
+            Contact: sip:[field0]@[local_ip]:[local_port]
+            Content-Length: 0
+            Expires: 3600
+        ]]>
+    </send>
+
+    <recv response="401" auth="true">
+    </recv>
+
+    <send retrans="500">
+        <![CDATA[
+            REGISTER sip:[field0]@[remote_ip]:[remote_port] SIP/2.0
+            Via: SIP/2.0/[transport] [local_ip]:[local_port]
+            From: [field0] <sip:[field0]@[remote_ip]:[remote_port]>;tag=[call_number]
+            To: [field0] <sip:[field0]@[remote_ip]:[remote_port]>
+            Call-ID: [call_id]
+            CSeq: 2 REGISTER
+            Expires: 3600
+            Contact: sip:[field0]@[local_ip]:[local_port]
+            [field2]
+            Content-Length: [len]
+        ]]>
+    </send>
+
+    <recv response="200">
+    </recv>
+
+    <send retrans="500">
+        <![CDATA[
+
+            INVITE sip:[field1]@[remote_ip]:[remote_port] SIP/2.0
+            Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+            Max-Forwards: 70
+            Contact: sip:[field0]@[local_ip]:[local_port]
+            To: [field0] <sip:[field0]@[remote_ip]:[remote_port]>
+            From: [field0] <sip:[field0]@[remote_ip]:[remote_port]>;tag=[call_number]
+            Call-ID: [call_id]
+            CSeq: 8687 INVITE
+            Allow: INVITE, ACK, CANCEL, BYE, NOTIFY, REFER, MESSAGE, OPTIONS, INFO, SUBSCRIBE
+            Content-Type: application/sdp
+            Supported: replaces, norefersub, extended-refer, timer, X-cisco-serviceuri
+            User-Agent: Asterisk
+            Allow-Events: presence, kpml
+            Content-Length: [len]
+
+            v=0
+            o=Z 0 0 IN IP4 192.168.1.3
+            s=Z
+            c=IN IP4 192.168.1.3
+            t=0 0
+            m=audio 8000 RTP/AVP 3 110 8 0 98 101
+            a=rtpmap:110 speex/8000
+            a=rtpmap:98 iLBC/8000
+            a=fmtp:98 mode=20
+            a=rtpmap:101 telephone-event/8000
+            a=fmtp:101 0-15
+            a=sendrecv
+
+        ]]>
+    </send>
+
+    <recv response="401" >
+    </recv>
+
+    <send retrans="500">
+        <![CDATA[
+
+            INVITE sip:[field1]@[remote_ip]:[remote_port] SIP/2.0
+            Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+            Max-Forwards: 70
+            Contact: sip:[field0]@[local_ip]:[local_port]
+            To: [field0] <sip:[field0]@[remote_ip]:[remote_port]>
+            From: [field0] <sip:[field0]@[remote_ip]:[remote_port]>;tag=[call_number]
+            Call-ID: [call_id]
+            CSeq: 8688 INVITE
+            Allow: INVITE, ACK, CANCEL, BYE, NOTIFY, REFER, MESSAGE, OPTIONS, INFO, SUBSCRIBE
+            [field2]
+            Content-Type: application/sdp
+            Supported: replaces, norefersub, extended-refer, timer, X-cisco-serviceuri
+            User-Agent: Asterisk
+            Allow-Events: presence, kpml
+            Content-Length: [len]
+
+            v=0
+            o=Z 0 0 IN IP4 192.168.1.3
+            s=Z
+            c=IN IP4 192.168.1.3
+            t=0 0
+            m=audio 8000 RTP/AVP 3 110 8 0 98 101
+            a=rtpmap:110 speex/8000
+            a=rtpmap:98 iLBC/8000
+            a=fmtp:98 mode=20
+            a=rtpmap:101 telephone-event/8000
+            a=fmtp:101 0-15
+            a=sendrecv
+
+        ]]>
+    </send>
+
+    <recv response="100" >
+    </recv>
+
+    <recv response="180" >
+    </recv>
+
+    <recv response="200" >
+    </recv>
+</scenario>

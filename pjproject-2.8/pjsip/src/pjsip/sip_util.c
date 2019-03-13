@@ -379,6 +379,9 @@ PJ_DEF(pj_status_t) pjsip_endpt_create_request(  pjsip_endpoint *endpt,
 	pjsip_method_copy(tdata->pool, &cseq->method, method);
 
 	/* Create the request. */
+#ifdef GRANDSTREAM_NETWORKS
+	PJ_LOG(4, (tdata->obj_name, "Create the request!"));
+#endif
 	init_request_throw( endpt, tdata, &cseq->method, target, from, to, 
                             contact, call_id, cseq, param_text);
     }
@@ -456,6 +459,10 @@ PJ_DEF(pj_status_t) pjsip_endpt_create_request_from_hdr( pjsip_endpoint *endpt,
 	pjsip_method_copy(tdata->pool, &cseq->method, method);
 
 	/* Copy headers to the request. */
+#ifdef GRANDSTREAM_NETWORKS
+	PJ_LOG(4, (tdata->obj_name, "Copy headers to the request!"));
+#endif
+
 	init_request_throw(endpt, tdata, &cseq->method, target, from, to, 
                            contact, call_id, cseq, param_text);
     }

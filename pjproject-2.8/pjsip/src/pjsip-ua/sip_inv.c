@@ -4660,6 +4660,9 @@ static void inv_on_state_connecting( pjsip_inv_session *inv, pjsip_event *e)
 		    inv_set_cause(inv, tsx->status_code, &tsx->status_text);
 
 		    /* Send BYE */
+#ifdef GRANDSTREAM_NETWORKS
+			PJ_LOG(4, (inv->obj_name, "When invite transaction on 'connecting' state, send 'Bye' request, tsx->status_code[%d]!", tsx->status_code));
+#endif
 		    status = pjsip_dlg_create_request(inv->dlg,
 						      pjsip_get_bye_method(),
 						      -1, &bye);

@@ -3041,7 +3041,7 @@ language = zh
 
 [4190]
 type = endpoint
-transport = transport-udp
+transport = transport-tcp
 context = from-internal
 disallow = all
 allow = ulaw
@@ -3073,7 +3073,7 @@ language = zh
 
 [4192]
 type = endpoint
-transport = transport-udp
+transport = transport-tcp
 context = from-internal
 disallow = all
 allow = ulaw
@@ -3105,7 +3105,7 @@ language = zh
 
 [4194]
 type = endpoint
-transport = transport-udp
+transport = transport-tcp
 context = from-internal
 disallow = all
 allow = ulaw
@@ -3137,7 +3137,7 @@ language = zh
 
 [4196]
 type = endpoint
-transport = transport-tls
+transport = transport-tcp
 context = from-internal
 disallow = all
 allow = ulaw
@@ -3167,38 +3167,3 @@ timers = yes
 100rel = yes
 language = zh
 
-[trunk-tls]
-type = endpoint
-transport = transport-tls
-context = ext-did-7
-disallow = all
-allow = ulaw
-aors = trunk-tls
-direct_media = no
-rtp_symmetric = yes
-fax_detect = yes
-t38_udptl = yes
-t38_udptl_ipv6 = yes
-rtp_ipv6 = yes
-dtmf_mode = rfc4733
-rewrite_contact = yes
-direct_media = no
-disable_direct_media_on_nat = yes
-rtp_timeout = 90
-rtp_timeout_hold = 100
-rtp_keepalive = 0
-moh_suggest = default
-trust_id_inbound = no
-send_rpid = no
-inband_progress = no
-allow_transfer = yes
-timers_min_se = 90
-timers_sess_expires = 1800
-timers = yes
-100rel = yes
-language = zh
-
-[id_trunk_tls]
-type = identify
-endpoint = trunk-tls
-match = 127.0.0.1\;transport=TLS
