@@ -1307,6 +1307,9 @@ stateless_send_resolver_callback( pj_status_t status,
     pjsip_send_state *stateless_data = (pjsip_send_state*) token;
     pjsip_tx_data *tdata = stateless_data->tdata;
 
+#ifdef GRANDSTREAM_NETWORKS
+	PJ_LOG(5, (THIS_FILE, "Resolver callback for sending stateless request."));
+#endif
     /* Fail on server resolution. */
     if (status != PJ_SUCCESS) {
 	if (stateless_data->app_cb) {
@@ -1418,6 +1421,10 @@ PJ_DEF(pj_status_t) pjsip_endpt_send_request_stateless(pjsip_endpoint *endpt,
     if (tdata->dest_info.addr.count == 0) {
 	/* Copy the destination host name to TX data */
 	pj_strdup(tdata->pool, &tdata->dest_info.name, &dest_info.addr.host);
+
+#ifdef GRANDSTREAM_NETWORKS
+	PJ_LOG(5, (THIS_FILE, "Resolve start..."));
+#endif
 
 	pjsip_endpt_resolve( endpt, tdata->pool, &dest_info, stateless_data,
 			     &stateless_send_resolver_callback);

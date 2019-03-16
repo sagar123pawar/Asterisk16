@@ -1293,6 +1293,9 @@ PJ_DEF(pj_status_t) pjsip_dlg_send_request( pjsip_dialog *dlg,
 	}
 
     } else {
+#ifdef GRANDSTREAM_NETWORKS
+	PJ_LOG(3, (dlg->obj_name, "Set transport selector and send selector!"));
+#endif
 	/* Set transport selector */
 	pjsip_tx_data_set_transport(tdata, &dlg->tp_sel);
 

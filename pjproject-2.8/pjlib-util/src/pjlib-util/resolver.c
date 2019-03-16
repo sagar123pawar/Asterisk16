@@ -1661,7 +1661,6 @@ static void on_read_complete(pj_ioqueue_key_t *key,
     pj_status_t status;
     PJ_USE_EXCEPTION;
 
-
     resolver = (pj_dns_resolver *) pj_ioqueue_get_user_data(key);
     pj_assert(resolver);
 

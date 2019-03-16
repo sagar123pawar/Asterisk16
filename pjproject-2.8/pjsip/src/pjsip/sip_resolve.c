@@ -203,6 +203,9 @@ PJ_DEF(void) pjsip_resolve( pjsip_resolver_t *resolver,
     int af = pj_AF_UNSPEC();
 
     /* If an external implementation has been provided use it instead */
+#ifdef GRANDSTREAM_NETWORKS
+	PJ_LOG(4, (THIS_FILE, "If an external implementation has been provided use it instead."));
+#endif
     if (resolver->ext_res) {
         (*resolver->ext_res->resolve)(resolver, pool, target, token, cb);
         return;
