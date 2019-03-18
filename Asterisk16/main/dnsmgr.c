@@ -59,6 +59,10 @@
 #include "asterisk/manager.h"
 #include "asterisk/acl.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("DNS");
+#endif
+
 static struct ast_sched_context *sched;
 static int refresh_sched = -1;
 static pthread_t refresh_thread = AST_PTHREADT_NULL;

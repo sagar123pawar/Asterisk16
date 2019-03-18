@@ -15,11 +15,6 @@ cert_file=/opt/asterisk/etc/asterisk/keys/asterisk.crt
 priv_key_file=/opt/asterisk/etc/asterisk/keys/asterisk.key
 method=tlsv1_2
 
-[transport-tcp]
-type=transport
-protocol=tcp
-bind=0.0.0.0:50600
-
 #include pjsip_endpoint.conf
 #include pjsip_aor.conf
 #include pjsip_auth.conf

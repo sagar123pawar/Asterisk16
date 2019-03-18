@@ -39,6 +39,10 @@
 
 #include <arpa/nameser.h>
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("DNS");
+#endif
+
 /*! \brief Destructor for a DNS query */
 static void dns_query_recurring_destroy(void *data)
 {

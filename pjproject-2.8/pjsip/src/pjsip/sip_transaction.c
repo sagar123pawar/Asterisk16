@@ -1923,6 +1923,10 @@ static void send_msg_callback( pjsip_send_state *send_state,
     pjsip_transaction *tsx = (pjsip_transaction*) send_state->token;
     pjsip_tx_data *tdata = send_state->tdata;
 
+#ifdef GRANDSTREAM_NETWORKS
+	PJ_LOG(3, (tsx->obj_name, "Callback called by send message framework!\n"));
+#endif
+
     /* Check if transaction has cancelled itself from this transmit
      * notification (https://trac.pjsip.org/repos/ticket/1033).
      * Also check if the transaction layer itself may have been shutdown

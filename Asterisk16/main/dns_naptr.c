@@ -40,6 +40,10 @@
 #include "asterisk/dns_internal.h"
 #include "asterisk/utils.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("DNS");
+#endif
+
 /*!
  * \brief Result of analyzing NAPTR flags on a record
  */

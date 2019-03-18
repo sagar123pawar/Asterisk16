@@ -741,6 +741,16 @@ static pj_status_t transmit_query(pj_dns_resolver *resolver,
 	struct nameserver *ns = &resolver->ns[servers[i]];
 
 	if (ns->addr.addr.sa_family == pj_AF_INET()) {
+#ifdef GRANDSTREAM_NETWORKS
+		PJ_LOG(4, (resolver->name.ptr,
+				  "%s %d bytes to NS %d (%s:%d): DNS %s query for %s",
+				  (q->transmit_cnt==0? "Transmitting":"Re-transmitting"),
+				  (int)pkt_size, servers[i],
+				  pj_sockaddr_print(&ns->addr, addr, sizeof(addr), 2),
+				  pj_sockaddr_get_port(&ns->addr),
+				  pj_dns_get_type_name(q->key.qtype), 
+				  q->key.name));
+#endif
 	    status = pj_ioqueue_sendto(resolver->udp_key,
 				       &resolver->udp_op_tx_key,
 				       resolver->udp_tx_pkt, &sent, 0,
@@ -751,6 +761,17 @@ static pj_status_t transmit_query(pj_dns_resolver *resolver,
 	}
 #if PJ_HAS_IPV6
 	else if (resolver->udp6_key) {
+#ifdef GRANDSTREAM_NETWORKS
+		PJ_LOG(4, (resolver->name.ptr,
+				  "%s %d bytes to NS %d (%s:%d): DNS %s query for %s",
+				  (q->transmit_cnt==0? "Transmitting":"Re-transmitting"),
+				  (int)pkt_size, servers[i],
+				  pj_sockaddr_print(&ns->addr, addr, sizeof(addr), 2),
+				  pj_sockaddr_get_port(&ns->addr),
+				  pj_dns_get_type_name(q->key.qtype), 
+				  q->key.name));
+#endif
+
 	    status = pj_ioqueue_sendto(resolver->udp6_key,
 				       &resolver->udp6_op_tx_key,
 				       resolver->udp_tx_pkt, &sent, 0,
@@ -881,6 +902,10 @@ PJ_DEF(pj_status_t) pj_dns_resolver_start_query( pj_dns_resolver *resolver,
 
     /* Check type */
     PJ_ASSERT_RETURN(type > 0 && type < 0xFFFF, PJ_EINVAL);
+
+#ifdef GRANDSTREAM_NETWORKS
+	PJ_LOG(4, (resolver->name.ptr, "Create and start asynchronous DNS query for a single resource."));
+#endif
 
     /* Build resource key for looking up hash tables */
     init_res_key(&key, type, name);

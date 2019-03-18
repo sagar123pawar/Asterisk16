@@ -791,3 +791,12 @@ mailboxes = 4196
 maximum_expiration = 3600
 minimum_expiration = 90
 
+[trunk-tls]
+type = aor
+contact = sip:127.0.0.1\;transport=TLS
+qualify_timeout = 0
+
+[trunk_2]
+type = aor
+contact = sip:test123.jzhang.com
+qualify_timeout = 0

@@ -39,6 +39,10 @@
 #include "asterisk/dns_internal.h"
 #include "asterisk/utils.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("DNS");
+#endif
+
 struct ast_dns_record *dns_srv_alloc(struct ast_dns_query *query, const char *data, const size_t size)
 {
 	uint16_t priority;

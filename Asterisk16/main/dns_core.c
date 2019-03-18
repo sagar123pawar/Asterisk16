@@ -44,6 +44,10 @@
 #include <netinet/in.h>
 #include <arpa/nameser.h>
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("DNS");
+#endif
+
 AST_RWLIST_HEAD_STATIC(resolvers, ast_dns_resolver);
 
 static struct ast_sched_context *sched;

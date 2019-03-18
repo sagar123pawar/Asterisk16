@@ -39,6 +39,10 @@
 #include "asterisk/dns_srv.h"
 #endif
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("DNS");
+#endif
+
 /*** DOCUMENTATION
 	<configInfo name="res_resolver_unbound" language="en_US">
 		<configFile name="resolver_unbound.conf">

@@ -32,6 +32,12 @@
 #include "asterisk/dns_core.h"
 #include "asterisk/dns_tlsa.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+#include "asterisk/logger.h"
+
+AST_MODULE_LOG("DNS");
+#endif
+
 unsigned int ast_dns_tlsa_get_usage(const struct ast_dns_record *record)
 {
 	return 0;

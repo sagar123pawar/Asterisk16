@@ -36,6 +36,10 @@
 #include "asterisk/taskprocessor.h"
 #include "asterisk/utils.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("DNS");
+#endif
+
 /*! \brief The consideration priority for this resolver implementation. */
 #define DNS_SYSTEM_RESOLVER_PRIORITY INT_MAX
 
@@ -159,6 +163,9 @@ static int dns_system_resolver_process_query(void *data)
 	}
 
 	/* Mark the query as complete */
+#ifdef GRANDSTREAM_NETWORKS
+	ast_log(LOG_NOTICE, "Mark the query as complete for '%s'\n", ast_dns_query_get_name(query));
+#endif
 	ast_dns_resolver_completed(query);
 
 	/* Reduce the reference count on the query object */

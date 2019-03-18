@@ -38,6 +38,10 @@
 #include "asterisk/dns_internal.h"
 #include "asterisk/dns_resolver.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("DNS");
+#endif
+
 /*! \brief The default number of expected queries to be added to the query set */
 #define DNS_QUERY_SET_EXPECTED_QUERY_COUNT 5
 
@@ -91,6 +95,9 @@ static void dns_query_set_callback(const struct ast_dns_query *query)
 		return;
 	}
 
+#ifdef GRANDSTREAM_NETWORKS
+	ast_log(LOG_NOTICE, "All queries have been completed, invoke final callback!\n");
+#endif
 	/* All queries have been completed, invoke final callback */
 	if (query_set->queries_cancelled != AST_VECTOR_SIZE(&query_set->queries)) {
 		query_set->callback(query_set);

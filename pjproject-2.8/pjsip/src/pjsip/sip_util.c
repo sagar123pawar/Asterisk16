@@ -1274,6 +1274,9 @@ static void stateless_send_transport_cb( void *token,
 	pjsip_tx_data_invalidate_msg(tdata);
 
 	/* Send message using this transport. */
+#ifdef GRANDSTREAM_NETWORKS
+	PJ_LOG(4, (THIS_FILE, "Send message using this transport."));
+#endif
 	status = pjsip_transport_send( stateless_data->cur_transport,
 				       tdata,
 				       cur_addr,

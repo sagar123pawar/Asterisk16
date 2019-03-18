@@ -43,6 +43,10 @@
 #include "asterisk/dns.h"
 #include "asterisk/endian.h"
 
+#ifdef GRANDSTREAM_NETWORKS
+AST_MODULE_LOG("DNS");
+#endif
+
 /*! \brief The maximum size permitted for the answer from the DNS server */
 #define MAX_SIZE 4096
 
@@ -547,6 +551,9 @@ enum ast_dns_search_result ast_search_dns_ex(void *context, const char *dname, i
 	ast_assert(record_handler != NULL);
 
 	/* Try the DNS search. */
+#ifdef GRANDSTREAM_NETWORKS
+	ast_log(LOG_NOTICE, "Try the DNS search for '%s'\n", dname);
+#endif
 	dns_response_len = dns_search_res(dname,
 	                                  rr_class,
 	                                  rr_type,
@@ -575,6 +582,10 @@ enum ast_dns_search_result ast_search_dns_ex(void *context, const char *dname, i
 	} else if (ret == AST_DNS_SEARCH_NO_RECORDS) {
 		/* No results found */
 		ast_debug(1, "DNS search yielded no results for %s\n", dname);
+#ifdef GRANDSTREAM_NETWORKS
+	} else {
+		ast_log(LOG_NOTICE, "DNS search yielded at least one discovered record!\n");
+#endif
 	}
 
 	return ret;
