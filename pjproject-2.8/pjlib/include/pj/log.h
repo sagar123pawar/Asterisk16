@@ -153,6 +153,10 @@ static inline char *pj_src_string(const char *src, const char *format, ...)
 		free(log_str);													\
 		log_str = NULL;													\
 	}																	\
+	if (src_str) {														\
+		free(src_str);													\
+		src_str = NULL;													\
+	}																	\
 } while (0)
 
 #else
